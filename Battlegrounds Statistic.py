@@ -1,6 +1,7 @@
 import random
 
 class Personaggio:
+    #definisci il personaggio
     def __init__(self, nome, tipo, attacco, salute, abilites = ""):
         self.nome = nome
         self.tipo = tipo
@@ -9,14 +10,21 @@ class Personaggio:
         self.attacco = attacco
         self.abilites = abilites
 
+    #funzione attacco tra due, self e obj
     def attacca(self, obj):
+        #attacca obj
+        #se scudo divino, 0 danni
         if "sd" in self.abilites:
             self.abilites = self.abilites.replace("sd", "")
         else:
+            #se no veleno, attacco normale
             if not "vl" in obj.abilites:
                 self.salute -= obj.attacco
+            #se veleno, morte al tocco
             else:
                 self.salute = 0
+        #attacca self
+        #seconda parte speculare a quanto sopra
         if "sd" in obj.abilites:
             obj.abilites = obj.abilites.replace("sd", "")
         else:
@@ -25,6 +33,8 @@ class Personaggio:
             else:
                 obj.salute = 0
 
+    #funziona rinascita, il servitore rinasce con salute pari a 1
+    #t indica se il servitore è amico (f) o nemico (e)
     def reborn(self, t):
         global r, numero_r, i
         if t == "f":
@@ -33,6 +43,7 @@ class Personaggio:
         else:
             arr = array_personaggi_nemici
             arr2 = e_array_of_taunts
+        #se sul lato del campo dove è morto il servitore non ci sono più di 7 servitori (servitore morto incluso), rinascita
         if not(len(arr) > 7):
             indice = array_nomi.index(self.nome)
             nuovo = personaggi[indice]
@@ -431,8 +442,8 @@ for j in range(number):
     elif len(array_personaggi_amici) > 0 and len(array_personaggi_nemici) == 0:
         count_win += 1
     elif len(array_personaggi_amici) == 0 and len(array_personaggi_nemici) == 0:
-        count_tie += 1 d
-jijijiij
+        count_tie += 1
+
 print(count_win, count_tie, count_lose)
 win_prob = float((count_win / number) * 100)
 tie_prob = float((count_tie / number) * 100)
