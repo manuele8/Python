@@ -43,16 +43,19 @@ class Personaggio:
         else:
             arr = array_personaggi_nemici
             arr2 = e_array_of_taunts
-        #se sul lato del campo dove è morto il servitore non ci sono più di 7 servitori (servitore morto incluso), rinascita
-        if not(len(arr) > 7):
+        #se sul lato del campo dove è morto il servitore non ci sono già almeno 7 servitori (servitore morto escluso), rinascita
+        if not(len(arr) >= 7):
+            #ricerca tra tutti i personaggi nell'elenco, quello avente lo stesso nome del servitore morto e ne crea una copia con uno di salute
             indice = array_nomi.index(self.nome)
             nuovo = personaggi[indice]
             self.abilites = nuovo.abilites
             self.attacco = nuovo.attacco
-            self.salute = 1
             self.max_salute = nuovo.salute
+            self.salute = 1
+            #la copia non puà avere ancora rinascita
             if "rn" in self.abilites:
                 self.abilites = self.abilites.replace('rn', '')
+            #se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
             if "pv" in self.abilites:
                 arr2.append(self)
         else:
