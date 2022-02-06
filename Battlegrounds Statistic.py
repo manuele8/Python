@@ -431,7 +431,7 @@ for j in range(number):
     elif len(array_personaggi_amici) > 0 and len(array_personaggi_nemici) == 0:
         count_win += 1
     elif len(array_personaggi_amici) == 0 and len(array_personaggi_nemici) == 0:
-        count_tie += 1
+        count_tie += 1 d
 jijijiij
 print(count_win, count_tie, count_lose)
 win_prob = float((count_win / number) * 100)
