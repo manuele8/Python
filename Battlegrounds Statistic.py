@@ -205,13 +205,8 @@ class Personaggio:
             #interessa solo se viene ucciso un servitore che aveva già attaccato o la cui posizione è inferiore a quello che attaccherà perché in caso contrario l'ordine non cambia
             if numero_r < r:
                 if r > 0:
-                    if numero_r == r - 1:
-                        r += -1
-                    else:
-                        if len(arr) <= or_len:
-                            r += len(arr) - or_len
-                        else:
-                            r = arr.index(prs)
+                    r += len(arr) - or_len
+                    
 
 array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esploratore", "Elementale"]
 array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
