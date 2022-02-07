@@ -92,7 +92,7 @@ class Personaggio:
                                               array_of_abilities[indice])
                     obj = personaggio
                     array.append(obj)
-                    #se hanno provocazione, aggiunge nella lista
+                    #se hanno provocazione, aggiunge nella lista     s
                     if "pv" in obj.abilities:
                         arr2.append(obj)
                     # Canaglia - Bucaniere
