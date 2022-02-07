@@ -2,33 +2,33 @@ import random
 
 class Personaggio:
     #definisci il personaggio
-    def __init__(self, nome, tipo, attacco, salute, abilites = ""):
+    def __init__(self, nome, tipo, attacco, salute, abilities = ""):
         self.nome = nome
         self.tipo = tipo
         self.salute = salute
         self.max_salute = salute
         self.attacco = attacco
-        self.abilites = abilites
+        self.abilities = abilities
 
     #funzione attacco tra due, self e obj
     def attacca(self, obj):
         #attacca obj
         #se scudo divino, 0 danni
-        if "sd" in self.abilites:
-            self.abilites = self.abilites.replace("sd", "")
+        if "sd" in self.abilities:
+            self.abilities = self.abilities.replace("sd", "")
         else:
             #se no veleno, attacco normale
-            if not "vl" in obj.abilites:
+            if not "vl" in obj.abilities:
                 self.salute -= obj.attacco
             #se veleno, morte al tocco
             else:
                 self.salute = 0
         #attacca self
         #seconda parte speculare a quanto sopra
-        if "sd" in obj.abilites:
-            obj.abilites = obj.abilites.replace("sd", "")
+        if "sd" in obj.abilities:
+            obj.abilities = obj.abilities.replace("sd", "")
         else:
-            if not "vl" in self.abilites:
+            if not "vl" in self.abilities:
                 obj.salute -= self.attacco
             else:
                 obj.salute = 0
@@ -46,15 +46,17 @@ class Personaggio:
         # ricerca tra tutti i personaggi nell'elenco, quello avente lo stesso nome del servitore morto e ne crea una copia con uno di salute
         indice = array_nomi.index(self.nome)
         nuovo = personaggi[indice]
-        self.abilites = nuovo.abilites
+        self.abilities = nuovo.abilities
         self.attacco = nuovo.attacco
         self.max_salute = nuovo.salute
         self.salute = 1
         # la copia non puà avere ancora rinascita
-        if "rn" in self.abilites:
-            self.abilites = self.abilites.replace('rn', '')
+        if "rn" in self.abilities:
+            self.abilities = self.abilities.replace('rn', '')
+        #da verificare dove vada appeso
+        arr.append(self)
         # se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
-        if "pv" in self.abilites:
+        if "pv" in self.abilities:
             arr2.append(self)
 
 
@@ -78,10 +80,10 @@ class Personaggio:
                 array = [self]
                 for i in range(num):
                     personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0], array_stats[indice][1],
-                                              array_of_abilites[indice])
+                                              array_of_abilities[indice])
                     obj = personaggio
                     array.append(obj)
-                    if "pv" in obj.abilites:
+                    if "pv" in obj.abilities:
                         arr2.append(obj)
                     #Canaglia - Bucaniere
                     if obj.tipo == "Pirata" and count > 0:
@@ -94,10 +96,10 @@ class Personaggio:
                 array = [self]
                 for i in range(num):
                     personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0], array_stats[indice][1],
-                                              array_of_abilites[indice])
+                                              array_of_abilities[indice])
                     obj = personaggio
                     array.append(obj)
-                    if "pv" in obj.abilites:
+                    if "pv" in obj.abilities:
                         arr2.append(obj)
                     if obj.tipo == "Pirata" and count > 0:
                         obj.attacco += count
@@ -106,7 +108,7 @@ class Personaggio:
                 arr[indices:indices + 1] = array
 
 
-    def summon_abilites(self, t):
+    def summon_abilities(self, t):
         if self.nome == "Canaglia":
             self.summon(t, 1, "Pirata")
         if self.nome == "Imp Rivoltante":
@@ -163,23 +165,24 @@ class Personaggio:
                         element.salute = 1
                     else:
                         element.salute += ge - conto_e
-
+                        
+    #solita variabile t + variabile s che indica
     def morte(self, t, s=None):
         global numero_r, i, value, r
         if t == "f":
             arr = array_personaggi_amici
             prs = arr[i]
             or_len = len(arr)
-            if "pv" in self.abilites:
+            if "pv" in self.abilities:
                 f_array_of_taunts.remove(self)
         else:
             arr = array_personaggi_nemici
             prs = arr[r]
             or_len = len(arr)
-            if "pv" in self.abilites:
+            if "pv" in self.abilities:
                 e_array_of_taunts.remove(self)
         self.add_stats(arr)
-        self.summon_abilites(t)
+        self.summon_abilities(t)
         if t == "f" and s != None:
             if numero_r < i:
                 if i > 0:
@@ -200,58 +203,55 @@ class Personaggio:
                             r += len(arr) - or_len
                         else:
                             r = arr.index(prs)
-        if not "rn" in self.abilites:
-            arr.remove(self)
-            self.aggiornamento_combattimento()
-        else:
+        arr.remove(self)
+        if not (len(arr) >= 7) and "rn" in self.abilities:
             self.reborn(t)
             self.aggiornamento_combattimento()
 
 array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esploratore", "Elementale"]
 array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
 array_stats_tokens_locanda1 = [(1, 1), (1, 1), (1, 1), (1, 1), (2, 2)]
-array_of_abilites_tokens_locanda1 = ["", "", "", "", ""]
+array_of_abilities_tokens_locanda1 = ["", "", "", "", ""]
 personaggi_tokens_locanda1 = []
 for i in range(len(array_nomi_tokens_locanda1)):
-    personaggio = Personaggio(array_nomi_tokens_locanda1[i], array_tipi_tokens_locanda1[i], array_stats_tokens_locanda1[i][0], array_stats_tokens_locanda1[i][1], array_of_abilites_tokens_locanda1[i])
+    personaggio = Personaggio(array_nomi_tokens_locanda1[i], array_tipi_tokens_locanda1[i], array_stats_tokens_locanda1[i][0], array_stats_tokens_locanda1[i][1], array_of_abilities_tokens_locanda1[i])
     personaggi_tokens_locanda1.append(personaggio)
 
 array_nomi_tokens_locanda2 = ["Golem Danneggiato", "Tartaruga"]
 array_tipi_tokens_locanda2 = ["Robot", "Bestia"]
 array_stats_tokens_locanda2 = [(2, 1), (2, 3)]
-array_of_abilites_tokens_locanda2 = ["", "pv"]
+array_of_abilities_tokens_locanda2 = ["", "pv"]
 personaggi_tokens_locanda2 = []
 for i in range(len(array_nomi_tokens_locanda2)):
-    personaggio = Personaggio(array_nomi_tokens_locanda2[i], array_tipi_tokens_locanda2[i], array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1], array_of_abilites_tokens_locanda2[i])
+    personaggio = Personaggio(array_nomi_tokens_locanda2[i], array_tipi_tokens_locanda2[i], array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1], array_of_abilities_tokens_locanda2[i])
     personaggi_tokens_locanda2.append(personaggio)
 
 array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice", "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio", "Geomante Lamaspina", "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo", "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira", "Vendimentale", "Verrospino Abbronzato"]
 array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia", "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
 array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2), (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
-array_of_abilites_locanda1 = ["pvrn", "", "", "", "kj", "kj", "", "", "kj", "kj", "kj", "", "rn", "", "sd", "", "", ""]
+array_of_abilities_locanda1 = ["pvrn", "", "", "", "kj", "kj", "", "", "kj", "kj", "kj", "", "rn", "", "sd", "", "", ""]
 personaggi_locanda1 = []
 for i in range(len(array_nomi_locanda1)):
-    personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0], array_stats_locanda1[i][1], array_of_abilites_locanda1[i])
+    personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0], array_stats_locanda1[i][1], array_of_abilities_locanda1[i])
     personaggi_locanda1.append(personaggio)
 
 array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere", "Cinghiale di Strada", "Comandante Nathrezim", "Condottiero Murloc", "Elementale della Festa", "Ghoul Instabile", "Golem Mietitore", "Grande Capo Scagliafine", "Guardiano dei Glifi", "Maxi-Robobomba", "Profeta dei Cinghiali", "Prole di N'zoth", "Rana Salterina", "Ratto delle Fogne", "Roccia Fusa", "Saurolisco Rabbioso", "Scommettitrice Incallita", "Tazza del Serraglio", "Trafficante di Draghetti", "Vecchio Occhiobuio", "Yo-Ho-Ogre", "Zannatosta"]
 array_tipi_locanda2 = ["Robot", "Pirata", None, "Demone", "Verrospino", "Demone", "Murloc", "Elementale", None, "Robot", "Murloc", "Drago", "Robot", None, None, "Bestia", "Bestia", "Elementale", "Bestia", "Pirata", None, None, "Murloc", "Pirata", "Verrospino"]
 array_stats_locanda2 = [(3, 3), (3, 3), (2, 1), (3, 3), (2, 4), (2, 4), (3, 3), (3, 2), (1, 3), (2, 3), (3, 2), (2, 4), (2, 2), (3, 3), (2, 2), (3, 3), (3, 2), (2, 4), (3, 2), (3, 3), (2, 2), (2, 5), (2, 4), (3, 5), (5, 3)]
-array_of_abilites_locanda2 = ["", "kj", "kj", "kjpv", "", "", "kj", "", "kjpv", "kj", "", "kj", "kj", "", "kj", "kj", "kj", "pv", "", "", "", "", "kj", "kjpv", ""]
+array_of_abilities_locanda2 = ["", "kj", "kj", "kjpv", "", "", "kj", "", "kjpv", "kj", "", "kj", "kj", "", "kj", "kj", "kj", "pv", "", "", "", "", "kj", "kjpv", ""]
 personaggi_locanda2 = []
 for i in range(len(array_nomi_locanda2)):
-    personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0], array_stats_locanda2[i][1], array_of_abilites_locanda2[i])
+    personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0], array_stats_locanda2[i][1], array_of_abilities_locanda2[i])
     personaggi_locanda2.append(personaggio)
 array_nomi = array_nomi_tokens_locanda1 + array_nomi_tokens_locanda2 + array_nomi_locanda1 + array_nomi_locanda2
 array_tipi = array_tipi_tokens_locanda1 + array_tipi_tokens_locanda2 + array_tipi_locanda1 + array_tipi_locanda2
 array_stats = array_stats_tokens_locanda1 + array_stats_tokens_locanda2 + array_stats_locanda1 + array_stats_locanda2
-array_of_abilites = array_of_abilites_tokens_locanda1 + array_of_abilites_tokens_locanda2 + array_of_abilites_locanda1 + array_of_abilites_locanda2
+array_of_abilities = array_of_abilities_tokens_locanda1 + array_of_abilities_tokens_locanda2 + array_of_abilities_locanda1 + array_of_abilities_locanda2
 personaggi = personaggi_tokens_locanda1 + personaggi_tokens_locanda2 + personaggi_locanda1 + personaggi_locanda2
 taunt = None
 array_nomi_p = (["Canaglia", "Canaglia", "Belva Zannaferrea", "Bucaniere Acquanera", "Bucaniere Acquanera"], ["Gatto Soriano", "Gatto Soriano", "Canaglia", "Bucaniere Acquanera"])
-array_attacco_p = ([3, 4, 3, 2, 1], [3, 3, 3, 1])
-array_salute_p = ([3, 4, 3, 2, 1], [5, 3, 3, 3])
-array_of_abilites_p = (["", "pv", "", "pvrn", ""], ["sd", "sd", "pv", "rn"])
+array_stats_p = ([3, 4, 3, 2, 1], [3, 3, 3, 1])
+array_of_abilities_p = (["", "pv", "", "pvrn", ""], ["sd", "sd", "pv", "rn"])
 count_lose = 0
 count_tie = 0
 count_win = 0
@@ -302,7 +302,7 @@ def inizio_combattimento():
                     element.salute_f()
 
 def Fulfill_Arrays():
-    global array_personaggi_amici, array_personaggi_nemici, f_array_of_taunts, e_array_of_taunts, personaggi_locanda1, array_nomi_locanda1, array_stats_locanda1, array_of_abilites_locanda1, array_nomi, array_salute, array_attacco, array_of_abilites
+    global array_personaggi_amici, array_personaggi_nemici, f_array_of_taunts, e_array_of_taunts, personaggi_locanda1, array_nomi_locanda1, array_stats_locanda1, array_of_abilities_locanda1, array_nomi, array_salute, array_attacco, array_of_abilities
     array_personaggi_amici = []
     array_personaggi_nemici = []
     f_array_of_taunts = []
@@ -310,30 +310,30 @@ def Fulfill_Arrays():
     for i in range(len(array_nomi_p[0])):
         indice = array_nomi.index(array_nomi_p[0][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0], array_stats[indice][1],
-                                  array_of_abilites[indice])
+                                  array_of_abilities[indice])
         array_personaggi_amici.append(personaggio)
     for i in range(len(array_nomi_p[1])):
         indice = array_nomi.index(array_nomi_p[1][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0], array_stats[indice][1],
-                                  array_of_abilites[indice])
+                                  array_of_abilities[indice])
         array_personaggi_nemici.append(personaggio)
-    for i in range(len(array_attacco_p[0])):
+    for i in range(len(array_stats_p[0])):
         indice = array_nomi.index(array_personaggi_amici[i].nome)
-        array_personaggi_amici[i].attacco = array_attacco_p[0][i]
-        array_personaggi_amici[i].salute = array_salute_p[0][i]
+        array_personaggi_amici[i].attacco = array_stats_p[0][i]
+        array_personaggi_amici[i].salute = array_stats_p[0][i]
         array_personaggi_amici[i].max_salute = array_personaggi_amici[i].salute
-        array_personaggi_amici[i].abilites = array_of_abilites[indice] + array_of_abilites_p[0][i]
-    for i in range(len(array_attacco_p[1])):
+        array_personaggi_amici[i].abilities = array_of_abilities[indice] + array_of_abilities_p[0][i]
+    for i in range(len(array_stats_p[1])):
         indice = array_nomi.index(array_personaggi_nemici[i].nome)
-        array_personaggi_nemici[i].attacco = array_attacco_p[1][i]
-        array_personaggi_nemici[i].salute = array_salute_p[1][i]
+        array_personaggi_nemici[i].attacco = array_stats_p[1][i]
+        array_personaggi_nemici[i].salute = array_stats_p[1][i]
         array_personaggi_nemici[i].max_salute = array_personaggi_nemici[i].salute
-        array_personaggi_nemici[i].abilites = array_of_abilites[indice] + array_of_abilites_p[1][i]
+        array_personaggi_nemici[i].abilities = array_of_abilities[indice] + array_of_abilities_p[1][i]
     for element in array_personaggi_amici:
-        if "pv" in element.abilites:
+        if "pv" in element.abilities:
             f_array_of_taunts.append(element)
     for element in array_personaggi_nemici:
-        if "pv" in element.abilites:
+        if "pv" in element.abilities:
             e_array_of_taunts.append(element)
 
 
@@ -342,9 +342,9 @@ def P_vs_E():
     global i, r, taunt, value, numero_r
     start = 3
     repeat = True
-    if "fv" in array_personaggi_amici[i].abilites:
+    if "fv" in array_personaggi_amici[i].abilities:
         start = 2
-    if "sfv" in array_personaggi_amici[i].abilites:
+    if "sfv" in array_personaggi_amici[i].abilities:
         start = 0
     for n in range(start, 4):
         if not repeat or len(array_personaggi_nemici) == 0:
@@ -363,7 +363,7 @@ def P_vs_E():
             if i >= len(array_personaggi_amici):
                 i = 0
         else:
-            if not "fv" in array_personaggi_amici[i].abilites:
+            if not "fv" in array_personaggi_amici[i].abilities:
                 i += 1
                 if i >= len(array_personaggi_amici):
                     i = 0
@@ -378,9 +378,9 @@ def E_vs_P():
     global i, r, taunt, value, numero_r
     start = 3
     repeat = True
-    if "fv" in array_personaggi_nemici[r].abilites:
+    if "fv" in array_personaggi_nemici[r].abilities:
         start = 2
-    if "sfv" in array_personaggi_nemici[r].abilites:
+    if "sfv" in array_personaggi_nemici[r].abilities:
         start = 0
     for n in range(start, 4):
         if not repeat or len(array_personaggi_amici) == 0:
@@ -399,7 +399,7 @@ def E_vs_P():
             if r >= len(array_personaggi_nemici):
                 r = 0
         else:
-            if not "fv" in array_personaggi_nemici[r].abilites:
+            if not "fv" in array_personaggi_nemici[r].abilities:
                 r += 1
                 if r >= len(array_personaggi_nemici):
                     r = 0
@@ -420,9 +420,9 @@ for j in range(number):
     #print(first_player, "lol")
     while len(array_personaggi_nemici) > 0 and len(array_personaggi_amici) > 0:
         '''for element in array_personaggi_amici:
-            print(element.nome, element.attacco, element.salute, element.abilites)
+            print(element.nome, element.attacco, element.salute, element.abilities)
         for element in array_personaggi_nemici:
-            print(element.nome, element.attacco, element.salute, element.abilites)'''
+            print(element.nome, element.attacco, element.salute, element.abilities)'''
         if first_player == 0:
             P_vs_E()
             if not (len(array_personaggi_nemici) > 0 and len(array_personaggi_amici) > 0):
@@ -434,9 +434,9 @@ for j in range(number):
                 break
             P_vs_E()
         '''for element in array_personaggi_amici:
-            print(element.nome, element.attacco, element.salute, element.abilites)
+            print(element.nome, element.attacco, element.salute, element.abilities)
         for element in array_personaggi_nemici:
-            print(element.nome, element.attacco, element.salute, element.abilites)'''
+            print(element.nome, element.attacco, element.salute, element.abilities)'''
     if len(array_personaggi_amici) == 0 and len(array_personaggi_nemici) > 0:
         count_lose += 1
     elif len(array_personaggi_amici) > 0 and len(array_personaggi_nemici) == 0:
