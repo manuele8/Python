@@ -107,7 +107,7 @@ class Personaggio:
                         obj.salute_f()
                 arr[indices:indices + 1] = array
 
-
+    #funzione solo organizzativa, in cui si raccolgono i nomi delle carte ne evocano altre, la vera funzione è summon
     def summon_abilities(self, t):
         if self.nome == "Canaglia":
             self.summon(t, 1, "Pirata")
@@ -166,7 +166,7 @@ class Personaggio:
                     else:
                         element.salute += ge - conto_e
                         
-    #solita variabile t + variabile s che indica
+    #solita variabile t che indica se il servitore che muore è amico o meno + variabile s che specifica le situazioni in cui il servitore a morire è quello attaccato, se s è None, è morto il servitore che ha attaccato, altrimenti quello che è stato attaccato
     def morte(self, t, s=None):
         global numero_r, i, value, r
         if t == "f":
@@ -181,8 +181,15 @@ class Personaggio:
             or_len = len(arr)
             if "pv" in self.abilities:
                 e_array_of_taunts.remove(self)
+        #possibili rantoli di morte del servitore, da rivedere in futuro
         self.add_stats(arr)
         self.summon_abilities(t)
+        arr.remove(self)
+        #se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita
+        if not (len(arr) >= 7) and "rn" in self.abilities:
+            self.reborn(t)
+            self.aggiornamento_combattimento()
+        #qui si modifica l'ordine di combattimento dopo la morte del servitore (sono ovviamente solo i casi in cui il servitore morto è quello attaccato)
         if t == "f" and s != None:
             if numero_r < i:
                 if i > 0:
@@ -194,6 +201,8 @@ class Personaggio:
                         else:
                             i = arr.index(prs)
         if t == "e" and s != None:
+            #numero r indica la posizione del servitore attaccato, r la posizione del servitore che attaccherà
+            #interessa solo se viene ucciso un servitore che aveva già attaccato o la cui posizione è inferiore a quello che attaccherà perché in caso contrario l'ordine non cambia
             if numero_r < r:
                 if r > 0:
                     if numero_r == r - 1:
@@ -203,10 +212,6 @@ class Personaggio:
                             r += len(arr) - or_len
                         else:
                             r = arr.index(prs)
-        arr.remove(self)
-        if not (len(arr) >= 7) and "rn" in self.abilities:
-            self.reborn(t)
-            self.aggiornamento_combattimento()
 
 array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esploratore", "Elementale"]
 array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
@@ -367,14 +372,15 @@ def P_vs_E():
             array_personaggi_amici[i].morte("f")
             if i >= len(array_personaggi_amici):
                 i = 0
-        #se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario
+        #se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario per cui intanto rendi la variabile add_1 vera
         else:
             if not "fv" in array_personaggi_amici[i].abilities:
                 add_1 = True
+                personaggio_momentaneo = array_personaggi_amici[i]
                 if i >= len(array_personaggi_amici):
                     i = 0
         if array_personaggi_nemici[numero_r].salute <= 0:
-            array_personaggi_nemici[numero_r].morte("e")
+            array_personaggi_nemici[numero_r].morte("e", "f")
             if r >= len(array_personaggi_nemici):
                 r = 0
             if i >= len(array_personaggi_amici):
