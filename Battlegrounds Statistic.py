@@ -138,7 +138,7 @@ class Personaggio:
         global conto_f, conto_e
         gf, ge = 0,0
         for element in array_personaggi_amici:
-            if element.nome == "Bucaniere Acquanera":
+            if element.nome == "Bucaniere Acquanera": a
                 gf += 1
         for element in array_personaggi_nemici:
             if element.nome == "Bucaniere Acquanera":
