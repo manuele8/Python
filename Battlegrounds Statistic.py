@@ -252,6 +252,7 @@ taunt = None
 array_nomi_p = (["Canaglia", "Canaglia", "Belva Zannaferrea", "Bucaniere Acquanera", "Bucaniere Acquanera"], ["Gatto Soriano", "Gatto Soriano", "Canaglia", "Bucaniere Acquanera"])
 array_stats_p = ([3, 4, 3, 2, 1], [3, 3, 3, 1])
 array_of_abilities_p = (["", "pv", "", "pvrn", ""], ["sd", "sd", "pv", "rn"])
+personaggio_momentaneo = None
 count_lose = 0
 count_tie = 0
 count_win = 0
@@ -339,9 +340,10 @@ def Fulfill_Arrays():
 
 
 def P_vs_E():
-    global i, r, taunt, value, numero_r
+    global i, r, taunt, value, numero_r, personaggio_momentaneo
     start = 3
     repeat = True
+    add_1 = False
     if "fv" in array_personaggi_amici[i].abilities:
         start = 2
     if "sfv" in array_personaggi_amici[i].abilities:
@@ -349,22 +351,26 @@ def P_vs_E():
     for n in range(start, 4):
         if not repeat or len(array_personaggi_nemici) == 0:
             break
+        #se non ci sono servitori nemici con provocazione, scegline uno randomicamente (numero r ne indica la posizione)
         if len(e_array_of_taunts) == 0:
             numero_r = random.randrange(0, len(array_personaggi_nemici))
+        #se ci sono scegli tra essi randomicamente, taunt è il personaggio, numero_r la posizione
         else:
             taunt = random.choice(e_array_of_taunts)
             numero_r = array_personaggi_nemici.index(taunt)
         elemento_casuale = array_personaggi_nemici[numero_r]
         print('\n' + array_personaggi_amici[i].nome + ' ' + str(array_personaggi_amici[i].attacco) + ' ' + str(array_personaggi_amici[i].salute) + ' ' + str(array_personaggi_amici[i].max_salute) + " (" + str(i) + ")" + " ha lottato con " + elemento_casuale.nome + ' ' + str(elemento_casuale.attacco) + ' ' + str(elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + " (" + str(numero_r) + ")" + '\n')
         array_personaggi_amici[i].attacca(elemento_casuale)
+        #se il mio servitore attaccando muore, l'ordine di attacco rimane invariato (+1 ma muore, quindi -1 ergo +0), vai comunque nella funzione morte
         if array_personaggi_amici[i].salute <= 0:
             repeat = False
             array_personaggi_amici[i].morte("f")
             if i >= len(array_personaggi_amici):
                 i = 0
+        #se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario
         else:
             if not "fv" in array_personaggi_amici[i].abilities:
-                i += 1
+                add_1 = True
                 if i >= len(array_personaggi_amici):
                     i = 0
         if array_personaggi_nemici[numero_r].salute <= 0:
