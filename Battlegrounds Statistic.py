@@ -43,23 +43,20 @@ class Personaggio:
         else:
             arr = array_personaggi_nemici
             arr2 = e_array_of_taunts
-        #se sul lato del campo dove è morto il servitore non ci sono già almeno 7 servitori (servitore morto escluso), rinascita
-        if not(len(arr) >= 7):
-            #ricerca tra tutti i personaggi nell'elenco, quello avente lo stesso nome del servitore morto e ne crea una copia con uno di salute
-            indice = array_nomi.index(self.nome)
-            nuovo = personaggi[indice]
-            self.abilites = nuovo.abilites
-            self.attacco = nuovo.attacco
-            self.max_salute = nuovo.salute
-            self.salute = 1
-            #la copia non puà avere ancora rinascita
-            if "rn" in self.abilites:
-                self.abilites = self.abilites.replace('rn', '')
-            #se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
-            if "pv" in self.abilites:
-                arr2.append(self)
-        else:
-            arr.remove(self)
+        # ricerca tra tutti i personaggi nell'elenco, quello avente lo stesso nome del servitore morto e ne crea una copia con uno di salute
+        indice = array_nomi.index(self.nome)
+        nuovo = personaggi[indice]
+        self.abilites = nuovo.abilites
+        self.attacco = nuovo.attacco
+        self.max_salute = nuovo.salute
+        self.salute = 1
+        # la copia non puà avere ancora rinascita
+        if "rn" in self.abilites:
+            self.abilites = self.abilites.replace('rn', '')
+        # se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
+        if "pv" in self.abilites:
+            arr2.append(self)
+
 
     def summon(self, t, num, name):
         global value, conto_f, conto_e
@@ -127,7 +124,7 @@ class Personaggio:
                     element.attacco += 2
                     element.salute += 1
                     element.salute_f()
-        #Ingannatore Impulsivo s
+        #Ingannatore Impulsivo
         if self.nome == "Ingannatore Impulsivo":
             if len(arr) > 1:
                 while 1:
@@ -183,12 +180,6 @@ class Personaggio:
                 e_array_of_taunts.remove(self)
         self.add_stats(arr)
         self.summon_abilites(t)
-        if not "rn" in self.abilites:
-            arr.remove(self)
-            self.aggiornamento_combattimento()
-        else:
-            self.reborn(t)
-            self.aggiornamento_combattimento()
         if t == "f" and s != None:
             if numero_r < i:
                 if i > 0:
@@ -209,6 +200,12 @@ class Personaggio:
                             r += len(arr) - or_len
                         else:
                             r = arr.index(prs)
+        if not "rn" in self.abilites:
+            arr.remove(self)
+            self.aggiornamento_combattimento()
+        else:
+            self.reborn(t)
+            self.aggiornamento_combattimento()
 
 array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esploratore", "Elementale"]
 array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
