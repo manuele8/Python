@@ -308,6 +308,10 @@ numero_r = 0
 conto_f = 0
 conto_e = 0
 value = -1
+numero = Variables.number
+nomi_array = Variables.array_nomi_p
+stats_array = Variables.array_stats_p
+abilities_array = Variables.array_of_abilities_p
 array_personaggi_amici = []
 array_personaggi_nemici = []
 f_array_of_taunts = []
@@ -354,30 +358,30 @@ def Fulfill_Arrays():
     array_personaggi_nemici = []
     f_array_of_taunts = []
     e_array_of_taunts = []
-    for i in range(len(Variables.array_nomi_p[0])):
-        indice = array_nomi.index(Variables.array_nomi_p[0][i])
+    for i in range(len(nomi_array[0])):
+        indice = array_nomi.index(nomi_array[0][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
                                   array_of_abilities[indice])
         array_personaggi_amici.append(personaggio)
-    for i in range(len(Variables.array_nomi_p[1])):
-        indice = array_nomi.index(Variables.array_nomi_p[1][i])
+    for i in range(len(nomi_array[1])):
+        indice = array_nomi.index(nomi_array[1][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
                                   array_of_abilities[indice])
         array_personaggi_nemici.append(personaggio)
-    for i in range(len(Variables.array_stats_p[0])):
+    for i in range(len(stats_array[0])):
         indice = array_nomi.index(array_personaggi_amici[i].nome)
-        array_personaggi_amici[i].attacco = Variables.array_stats_p[0][i][0]
-        array_personaggi_amici[i].salute = Variables.array_stats_p[0][i][1]
+        array_personaggi_amici[i].attacco = stats_array[0][i][0]
+        array_personaggi_amici[i].salute = stats_array[0][i][1]
         array_personaggi_amici[i].max_salute = array_personaggi_amici[i].salute
-        array_personaggi_amici[i].abilities = array_of_abilities[indice] + Variables.array_of_abilities_p[0][i]
-    for i in range(len(Variables.array_stats_p[1])):
+        array_personaggi_amici[i].abilities = array_of_abilities[indice] + abilities_array[0][i]
+    for i in range(len(stats_array[1])):
         indice = array_nomi.index(array_personaggi_nemici[i].nome)
-        array_personaggi_nemici[i].attacco = Variables.array_stats_p[1][i][0]
-        array_personaggi_nemici[i].salute = Variables.array_stats_p[1][i][1]
+        array_personaggi_nemici[i].attacco = stats_array[1][i][0]
+        array_personaggi_nemici[i].salute = stats_array[1][i][1]
         array_personaggi_nemici[i].max_salute = array_personaggi_nemici[i].salute
-        array_personaggi_nemici[i].abilities = array_of_abilities[indice] + Variables.array_of_abilities_p[1][i]
+        array_personaggi_nemici[i].abilities = array_of_abilities[indice] + abilities_array[1][i]
     for element in array_personaggi_amici:
         if "pv" in element.abilities:
             f_array_of_taunts.append(element)
@@ -480,7 +484,7 @@ def E_vs_P():
         personaggio_momentaneo_f = None
 
 
-for j in range(Variables.number):
+for j in range(numero):
     i, r = 0, 0
     Fulfill_Arrays()
     print(len(array_personaggi_amici))
@@ -521,9 +525,9 @@ for j in range(Variables.number):
         count_tie += 1
 
 print(count_win, count_tie, count_lose)
-win_prob = float((count_win / Variables.number) * 100)
-tie_prob = float((count_tie / Variables.number) * 100)
-lose_prob = float((count_lose / Variables.number) * 100)
+win_prob = float((count_win / numero) * 100)
+tie_prob = float((count_tie / numero) * 100)
+lose_prob = float((count_lose / numero) * 100)
 
 print(win_prob, tie_prob, lose_prob)
 # print(count_eccezioni)
