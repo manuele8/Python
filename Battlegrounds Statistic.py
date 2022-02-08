@@ -122,28 +122,35 @@ class Personaggio:
                 arr[indices:indices] = array
                 nuovo_indice = arr.index(self)
 
-    # funzione solo organizzativa, in cui si raccolgono i nomi delle carte ne evocano altre, la vera funzione è summon
+    # funzione solo organizzativa, in cui si raccolgono i nomi delle carte che ne evocano altre, la vera funzione è summon
     def summon_abilities(self, t):
         if self.nome == "Canaglia":
             self.summon(t, 1, "Pirata")
         if self.nome == "Imp Rivoltante":
             self.summon(t, 2, "Imp")
-
+    
+    #funzione di risettaggio della salute massima che non si aggiorna da sola istante per istante, quando la salute aumenta oltre la max la si richiama
     def salute_f(self):
         if self.salute > self.max_salute:
             self.max_salute = self.salute
-
+    
+    #funzione specifica per determinati servitori che incrementano le proprie o le stats di altri servitori in conseguenza di determinati eventi
     def add_stats(self, arr):
         # Iena Rovistatrice
+        #se il servitore che sta morendo è una bestia, verifica se ci sono iene rovistatrici nella mia board
         if self.tipo == "Bestia":
             for element in arr:
+                #la iena non deve coincidere con il servitore che sta morendo, o meglio è una bestia dunque le altre iene saranno buffate dalla sua morte ma la iena morente non può auto-buffarsi
                 if element.nome == "Iena Rovistatrice" and element != self:
                     element.attacco += 2
                     element.salute += 1
                     element.salute_f()
         # Ingannatore Impulsivo
+        #se muore l'ingannatore impulsivo, la sua salute massima viene trasferita su un altro servitore casuale (vi deve essere almeno un altro servitore oltre l'ingannatore per avvenire)
         if self.nome == "Ingannatore Impulsivo":
             if len(arr) > 1:
+                #while loop inserito solo per evitare che l'ingannatore impulsivo morente si auto-buffi, l'elemento buffato deve essere diverso dal servitore morente
+                #si sceglie randomicamente tra tutti, se capita self (ingannatore impulsivo morente), riprova
                 while 1:
                     elemento = random.choice(arr)
                     if elemento != self:
@@ -482,7 +489,12 @@ for j in range(number):
     Fulfill_Arrays()
     print(len(array_personaggi_amici))
     inizio_combattimento()
-    first_player = random.randrange(0, 2)
+    if len(array_personaggi_nemici) > len(array_personaggi_amici):
+        first_player = 1 
+    elif len(array_personaggi_nemici) < len(array_personaggi_amici):
+        first_player = 0
+    else:
+        first_player = random.randrange(0, 2)
     count = 0
     print("Inizio Partita")
     # print(first_player, "lol")
