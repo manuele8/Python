@@ -37,7 +37,7 @@ class Personaggio:
     # funziona rinascita, il servitore rinasce con salute pari a 1
     # t indica se il servitore è amico (f) o nemico (e)
     def reborn(self, t):
-        global r, numero_r, i
+        global r, numero_r, i, nuovo_indice
         if t == "f":
             arr = array_personaggi_amici
             arr2 = f_array_of_taunts
@@ -55,15 +55,15 @@ class Personaggio:
         if "rn" in self.abilities:
             self.abilities = self.abilities.replace('rn', '')
         # da verificare dove vada appeso
-        arr.append(self)
+        arr[nuovo_indice: nuovo_indice + 1] = [self]
         # se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
         if "pv" in self.abilities:
             arr2.append(self)
 
     #funzione di evocazione servitori alla morte di un servitore con rantolo di morte di questo genere: t è il tipo di servitore, f se amico, e se nemico, num indica il numero di servitori che potenzialmente la carta in questione evocherebbe e name il nome dei token
     def summon(self, t, num, name):
-        #conto_f e conto_e fanno riferimento a Bucaniere Acquanera, ma questa carta e i suoi effetti vanno rivisti
-        global conto_f, conto_e
+        #conto_f e conto_e fanno riferimento a Bucaniere Acquanera, ma questa carta e i suoi effetti vanno rivisti, nuovo indice sarà utile dopo
+        global conto_f, conto_e, nuovo_indice
         #visualizza la posizione, nella lista dei nomi di tutti i personaggi, del token in questione
         indice = array_nomi.index(name)
         if t == "f":
@@ -78,13 +78,13 @@ class Personaggio:
         lu = len(arr) - 1
         #individua la posizione della carta in questione nell'array degli amici o nemici che sia
         indices = arr.index(self)
-        #si può leggere come "se c'è uno spazio, allora", perché se lu < 7 vuol dire che dopo che è morto il servitore ci sono al massimo 6 spazi occupati ergo almeno 1 è libero.
+        #si può leggere come "se c'è uno spazio, allora...", perché se lu < 7 vuol dire che dopo che è morto il servitore ci sono al massimo 6 spazi occupati ergo almeno 1 è libero.
         if lu < 7:
             #7 - lu è proprio il numero degli spazi liberi, per cui se questo numero è minore di quanto la carta vorrebbe evocare fai qualcosa
             if 7 - lu < num:
                 #setta gli spazi liberi pari al numero di servitori evocabili
                 num = 7 - lu
-                array = [self]
+                array = []
                 for i in range(num):
                     #sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
                     personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
@@ -100,10 +100,13 @@ class Personaggio:
                         obj.attacco += count
                         obj.salute += count
                         obj.salute_f()
-                arr[indices:indices + 1] = array
-
+                #prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array ma si sposta di posizione dopo i token
+                arr[indices:indices] = array
+                #se ne individua la nuova posizione per la funzione rinascita se necessario
+                nuovo_indice = arr.index(self)
             else:
-                array = [self]
+                #molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
+                array = []
                 for i in range(num):
                     personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                               array_stats[indice][1],
@@ -116,7 +119,8 @@ class Personaggio:
                         obj.attacco += count
                         obj.salute += count
                         obj.salute_f()
-                arr[indices:indices + 1] = array
+                arr[indices:indices] = array
+                nuovo_indice = arr.index(self)
 
     # funzione solo organizzativa, in cui si raccolgono i nomi delle carte ne evocano altre, la vera funzione è summon
     def summon_abilities(self, t):
@@ -179,7 +183,8 @@ class Personaggio:
 
     # solita variabile t che indica se il servitore che muore è amico o meno + variabile s che specifica le situazioni in cui il servitore a morire è quello attaccato, se s è None, è morto il servitore che ha attaccato, altrimenti quello che è stato attaccato
     def morte(self, t, s=None):
-        global numero_r, i, value, r
+        global numero_r, i, value, r, nuovo_indice
+        nuovo_indice = None
         if t == "f":
             arr = array_personaggi_amici
             #prs = arr[i]
@@ -195,6 +200,8 @@ class Personaggio:
         #possibili rantoli di morte del servitore, da rivedere in futuro
         self.add_stats(arr)
         self.summon_abilities(t)
+        if nuovo_indice == None:
+            nuovo_indice = arr.index(self)
         arr.remove(self)
         #se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita
         if not (len(arr) >= 7) and "rn" in self.abilities:
@@ -278,6 +285,7 @@ array_stats = array_stats_tokens_locanda1 + array_stats_tokens_locanda2 + array_
 array_of_abilities = array_of_abilities_tokens_locanda1 + array_of_abilities_tokens_locanda2 + array_of_abilities_locanda1 + array_of_abilities_locanda2
 personaggi = personaggi_tokens_locanda1 + personaggi_tokens_locanda2 + personaggi_locanda1 + personaggi_locanda2
 taunt = None
+nuovo_indice = None
 array_nomi_p = (["Alacromatica Evolutiva", "Accolito di C'thun", "Imp Rivoltante", "Canaglia"],
                 ["Gatto Soriano", "Gatto Soriano", "Canaglia", "Iena Rovistatrice"])
 array_stats_p = ([(3, 4), (3, 2), (1, 1), (1, 1)], [(3, 1), (3, 1), (2, 2), (1, 1)])
