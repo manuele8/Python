@@ -1,4 +1,5 @@
 import random
+import Variables
 
 
 class Personaggio:
@@ -122,28 +123,35 @@ class Personaggio:
                 arr[indices:indices] = array
                 nuovo_indice = arr.index(self)
 
-    # funzione solo organizzativa, in cui si raccolgono i nomi delle carte ne evocano altre, la vera funzione è summon
+    # funzione solo organizzativa, in cui si raccolgono i nomi delle carte che ne evocano altre, la vera funzione è summon
     def summon_abilities(self, t):
         if self.nome == "Canaglia":
             self.summon(t, 1, "Pirata")
         if self.nome == "Imp Rivoltante":
             self.summon(t, 2, "Imp")
-
+    
+    #funzione di risettaggio della salute massima che non si aggiorna da sola istante per istante, quando la salute aumenta oltre la max la si richiama
     def salute_f(self):
         if self.salute > self.max_salute:
             self.max_salute = self.salute
-
+    
+    #funzione specifica per determinati servitori che incrementano le proprie o le stats di altri servitori in conseguenza di determinati eventi
     def add_stats(self, arr):
         # Iena Rovistatrice
+        #se il servitore che sta morendo è una bestia, verifica se ci sono iene rovistatrici nella mia board
         if self.tipo == "Bestia":
             for element in arr:
+                #la iena non deve coincidere con il servitore che sta morendo, o meglio è una bestia dunque le altre iene saranno buffate dalla sua morte ma la iena morente non può auto-buffarsi
                 if element.nome == "Iena Rovistatrice" and element != self:
                     element.attacco += 2
                     element.salute += 1
                     element.salute_f()
         # Ingannatore Impulsivo
+        #se muore l'ingannatore impulsivo, la sua salute massima viene trasferita su un altro servitore casuale (vi deve essere almeno un altro servitore oltre l'ingannatore per avvenire)
         if self.nome == "Ingannatore Impulsivo":
             if len(arr) > 1:
+                #while loop inserito solo per evitare che l'ingannatore impulsivo morente si auto-buffi, l'elemento buffato deve essere diverso dal servitore morente
+                #si sceglie randomicamente tra tutti, se capita self (ingannatore impulsivo morente), riprova
                 while 1:
                     elemento = random.choice(arr)
                     if elemento != self:
@@ -288,10 +296,6 @@ array_of_abilities = array_of_abilities_tokens_locanda1 + array_of_abilities_tok
 personaggi = personaggi_tokens_locanda1 + personaggi_tokens_locanda2 + personaggi_locanda1 + personaggi_locanda2
 taunt = None
 nuovo_indice = None
-array_nomi_p = (["Alacromatica Evolutiva", "Accolito di C'thun", "Imp Rivoltante", "Canaglia"],
-                ["Gatto Soriano", "Gatto Soriano", "Canaglia", "Iena Rovistatrice"])
-array_stats_p = ([(3, 4), (3, 2), (1, 1), (1, 1)], [(3, 1), (3, 1), (2, 2), (1, 1)])
-array_of_abilities_p = (["", "sd", "", "rn"], ["sd", "sd", "pv", "rn"])
 personaggio_momentaneo_f = None
 personaggio_momentaneo_e = None
 count_lose = 0
@@ -350,30 +354,30 @@ def Fulfill_Arrays():
     array_personaggi_nemici = []
     f_array_of_taunts = []
     e_array_of_taunts = []
-    for i in range(len(array_nomi_p[0])):
-        indice = array_nomi.index(array_nomi_p[0][i])
+    for i in range(len(Variables.array_nomi_p[0])):
+        indice = array_nomi.index(Variables.array_nomi_p[0][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
                                   array_of_abilities[indice])
         array_personaggi_amici.append(personaggio)
-    for i in range(len(array_nomi_p[1])):
-        indice = array_nomi.index(array_nomi_p[1][i])
+    for i in range(len(Variables.array_nomi_p[1])):
+        indice = array_nomi.index(Variables.array_nomi_p[1][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
                                   array_of_abilities[indice])
         array_personaggi_nemici.append(personaggio)
-    for i in range(len(array_stats_p[0])):
+    for i in range(len(Variables.array_stats_p[0])):
         indice = array_nomi.index(array_personaggi_amici[i].nome)
-        array_personaggi_amici[i].attacco = array_stats_p[0][i][0]
-        array_personaggi_amici[i].salute = array_stats_p[0][i][1]
+        array_personaggi_amici[i].attacco = Variables.array_stats_p[0][i][0]
+        array_personaggi_amici[i].salute = Variables.array_stats_p[0][i][1]
         array_personaggi_amici[i].max_salute = array_personaggi_amici[i].salute
-        array_personaggi_amici[i].abilities = array_of_abilities[indice] + array_of_abilities_p[0][i]
-    for i in range(len(array_stats_p[1])):
+        array_personaggi_amici[i].abilities = array_of_abilities[indice] + Variables.array_of_abilities_p[0][i]
+    for i in range(len(Variables.array_stats_p[1])):
         indice = array_nomi.index(array_personaggi_nemici[i].nome)
-        array_personaggi_nemici[i].attacco = array_stats_p[1][i][0]
-        array_personaggi_nemici[i].salute = array_stats_p[1][i][1]
+        array_personaggi_nemici[i].attacco = Variables.array_stats_p[1][i][0]
+        array_personaggi_nemici[i].salute = Variables.array_stats_p[1][i][1]
         array_personaggi_nemici[i].max_salute = array_personaggi_nemici[i].salute
-        array_personaggi_nemici[i].abilities = array_of_abilities[indice] + array_of_abilities_p[1][i]
+        array_personaggi_nemici[i].abilities = array_of_abilities[indice] + Variables.array_of_abilities_p[1][i]
     for element in array_personaggi_amici:
         if "pv" in element.abilities:
             f_array_of_taunts.append(element)
@@ -476,13 +480,17 @@ def E_vs_P():
         personaggio_momentaneo_f = None
 
 
-number = 10000
-for j in range(number):
+for j in range(Variables.number):
     i, r = 0, 0
     Fulfill_Arrays()
     print(len(array_personaggi_amici))
     inizio_combattimento()
-    first_player = random.randrange(0, 2)
+    if len(array_personaggi_nemici) > len(array_personaggi_amici):
+        first_player = 1 
+    elif len(array_personaggi_nemici) < len(array_personaggi_amici):
+        first_player = 0
+    else:
+        first_player = random.randrange(0, 2)
     count = 0
     print("Inizio Partita")
     # print(first_player, "lol")
@@ -513,9 +521,9 @@ for j in range(number):
         count_tie += 1
 
 print(count_win, count_tie, count_lose)
-win_prob = float((count_win / number) * 100)
-tie_prob = float((count_tie / number) * 100)
-lose_prob = float((count_lose / number) * 100)
+win_prob = float((count_win / Variables.number) * 100)
+tie_prob = float((count_tie / Variables.number) * 100)
+lose_prob = float((count_lose / Variables.number) * 100)
 
 print(win_prob, tie_prob, lose_prob)
 # print(count_eccezioni)
