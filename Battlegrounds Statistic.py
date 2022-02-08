@@ -202,11 +202,13 @@ class Personaggio:
         self.summon_abilities(t)
         if nuovo_indice == None:
             nuovo_indice = arr.index(self)
-        arr.remove(self)
-        #se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita
+        #se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
         if not (len(arr) >= 7) and "rn" in self.abilities:
             self.reborn(t)
             self.aggiornamento_combattimento()
+        else:
+            #per via di quanto sopra espresso
+            arr.remove(self)
         # qui si modifica l'ordine di combattimento dopo la morte del servitore (sono ovviamente solo i casi in cui il servitore morto è quello attaccato)
         #speculare a quanto sotto
         if t == "f" and s != None:
