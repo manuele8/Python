@@ -483,7 +483,7 @@ def E_vs_P():
 
 domanda = input("Vuoi partire dagli array già scritti? ")
 if "s" not in domanda:
-    Variables.ask_array()
+    Variables.ask_array(array_nomi)
 numero = Variables.number
 nomi_array = Variables.array_nomi_p
 stats_array = Variables.array_stats_p
