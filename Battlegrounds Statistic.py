@@ -422,7 +422,7 @@ def P_vs_E():
         #se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario per cui intanto rendi la variabile add_1 vera
         else:
             if not "fv" in array_personaggi_amici[i].abilities:
-                personaggio_momentaneo_f = array_personaggi_amici[i]
+                personaggio_momentaneo_f = array_personaggi_amici[i] a
                 i += 1
                 if i >= len(array_personaggi_amici):
                     i = 0
