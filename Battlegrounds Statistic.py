@@ -368,18 +368,21 @@ def Fulfill_Arrays():
                                   array_stats[indice][1],
                                   array_of_abilities[indice])
         array_personaggi_nemici.append(personaggio)
+    #stats_array[0] contiene le stats di tutte le carte amiche, per cui va in loop con ogni elemento in modo da settare l'attacco dei personaggi amici pari a quanto scritto nell'array, similmente per le abilità per cui si aggiunge la variabile indice utile in quanto diverso l'ordine e la lunghezza di quell'array (non si può usare i)
     for i in range(len(stats_array[0])):
         indice = array_nomi.index(array_personaggi_amici[i].nome)
         array_personaggi_amici[i].attacco = stats_array[0][i][0]
         array_personaggi_amici[i].salute = stats_array[0][i][1]
         array_personaggi_amici[i].max_salute = array_personaggi_amici[i].salute
         array_personaggi_amici[i].abilities = array_of_abilities[indice] + abilities_array[0][i]
-    for i in range(len(stats_array[1])):
+        #simile a quanto sopra, ma per i nemici
+        for i in range(len(stats_array[1])):
         indice = array_nomi.index(array_personaggi_nemici[i].nome)
         array_personaggi_nemici[i].attacco = stats_array[1][i][0]
         array_personaggi_nemici[i].salute = stats_array[1][i][1]
         array_personaggi_nemici[i].max_salute = array_personaggi_nemici[i].salute
         array_personaggi_nemici[i].abilities = array_of_abilities[indice] + abilities_array[1][i]
+    #se provocazione aggiunge nelle liste dei servitori con provocazione
     for element in array_personaggi_amici:
         if "pv" in element.abilities:
             f_array_of_taunts.append(element)
