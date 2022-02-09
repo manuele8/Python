@@ -18,9 +18,6 @@ def ask_array(names):
     array_of_abilities_p[0], array_of_abilities_p[1] = [0] * num_f, [0] * num_e
     array_nomi_p, array_stats_p, array_of_abilities_p = tuple(array_nomi_p), tuple(array_stats_p), tuple(
         array_of_abilities_p)
-    print(array_stats_p)
-    print(array_nomi_p)
-    print(array_of_abilities_p)
     print("Inserisci il nome dei tuoi servitori ")
     array = []
     array2 = names[:]
