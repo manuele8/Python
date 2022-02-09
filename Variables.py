@@ -2,10 +2,11 @@ array_nomi_p = (["Alacromatica Evolutiva", "Accolito di C'thun", "Imp Rivoltante
                 ["Gatto Soriano", "Gatto Soriano", "Canaglia", "Iena Rovistatrice"])
 array_stats_p = ([(3, 4), (3, 2), (1, 1), (1, 1)], [(3, 1), (3, 1), (2, 2), (1, 1)])
 array_of_abilities_p = (["", "sd", "", "rn"], ["sd", "sd", "pv", "rn"])
+array = []
 number = 10000
 
-def ask_array():
-  global array_nomi_p, array_stats_p, array_of_abilities_p
+def ask_array(names):
+  global array_nomi_p, array_stats_p, array_of_abilities_p, array
   array_nomi_p = [[], []]
   array_stats_p = [[], []]
   array_of_abilities_p = [[], []]
@@ -21,6 +22,20 @@ def ask_array():
   print("Inserisci il nome dei tuoi servitori ")
   for i in range(1, len(array_nomi_p[0]) + 1):
      nome = input("Inserisci il nome del servitore numero " + str(i) + ": ")
+     while 1:
+       if nome not in names:
+        for element in names:
+          if nome in element:
+            array.append(element)
+        if len(array) == 1:
+          nome = array[0]
+          break
+        elif len(array) < 1 :
+          nome = input("Non è stata trovata alcuna carta avente nome simile, reinserci il nome adesso per favore: ")
+        else:
+          nome = array[int(input("Sono state trovate le seguenti carte, indica la posizione in questo array di quella che intendevi: " + array + " " ))]
+       else:
+        break
      array_nomi_p[0][i - 1] = nome
   print("Inserisci il nome dei servitori nemici ")
   for i in range(1, len(array_nomi_p[1]) + 1):
