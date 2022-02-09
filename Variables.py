@@ -22,6 +22,7 @@ def ask_array(names):
   print("Inserisci il nome dei tuoi servitori ")
   array = []
   array2 = names[:]
+  list_abilities = ["", "pv", "sd", "vl", , "rn", "fv", "sfv"]
   for element in names:
     array2[array2.index(element)] = element.lower()
   for i in range(1, len(array_nomi_p[0]) + 1):
@@ -71,11 +72,11 @@ def ask_array(names):
      stats_a, stats_h = int(stats.split(', ')[0]), int(stats.split(', ')[1])
      stats = (stats_a, stats_h)
      array_stats_p[1][i - 1] = stats
-  print("Inserisci le abilità dei tuoi servitori ")
+  print("Inserisci le abilità dei tuoi servitori, ricordati che le abilità possono essere così scritte: " + str(list_abilities))
   for i in range(1, len(array_of_abilities_p[0]) + 1):
      abilities = input("Inserisci le abilità del servitore numero " + str(i) + ": ")
      array_of_abilities_p[0][i - 1] = abilities
-  print("Inserisci le abilità dei servitori nemici ")
+  print("Inserisci le abilità dei servitori nemici, ricordati che le abilità possono essere così scritte: " + str(list_abilities))
   for i in range(1, len(array_of_abilities_p[1]) + 1):
      abilities = input("Inserisci le abilità del servitore numero " + str(i) + ": ")
      array_of_abilities_p[1][i - 1] = abilities
