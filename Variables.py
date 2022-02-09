@@ -20,26 +20,44 @@ def ask_array(names):
   print(array_nomi_p)
   print(array_of_abilities_p)
   print("Inserisci il nome dei tuoi servitori ")
+  array = []
+  array2 = names[:]
+  for element in names:
+    array2[array2.index(element)] = element.lower()
   for i in range(1, len(array_nomi_p[0]) + 1):
-     nome = input("Inserisci il nome del servitore numero " + str(i) + ": ")
-     while 1:
-       if nome not in names:
+    nome = input("Inserisci il nome del servitore numero " + str(i) + ": ").lower()
+    while 1:
+        array = []
         for element in names:
-          if nome in element:
-            array.append(element)
+            if nome in element.lower():
+                array.append(element)
         if len(array) == 1:
-          nome = array[0]
-          break
+            nome = array[0]
+            break
         elif len(array) < 1 :
-          nome = input("Non è stata trovata alcuna carta avente nome simile, reinserci il nome adesso per favore: ")
+            nome = input("Non è stata trovata alcuna carta avente nome simile, reinserisci il nome adesso per favore: ")
         else:
-          nome = array[int(input("Sono state trovate le seguenti carte, indica la posizione in questo array di quella che intendevi: " + array + " " ))]
-       else:
-        break
-     array_nomi_p[0][i - 1] = nome
+            nome = array[int(input("Sono state trovate le seguenti carte, indica la posizione in questo array di quella che intendevi: " + str(array) + " " ))]
+            break
+    print(nome)
+    array_nomi_p[0][i - 1] = nome
+    print(array_nomi_p)
   print("Inserisci il nome dei servitori nemici ")
   for i in range(1, len(array_nomi_p[1]) + 1):
-     nome = input("Inserisci il nome del servitore numero " + str(i) + ": ")
+     nome = input("Inserisci il nome del servitore numero " + str(i) + ": ").lower()
+     while 1:
+        array = []
+        for element in names:
+            if nome in element.lower():
+                array.append(element)
+        if len(array) == 1:
+            nome = array[0]
+            break
+        elif len(array) < 1 :
+            nome = input("Non è stata trovata alcuna carta avente nome simile, reinserisci il nome adesso per favore: ")
+        else:
+            nome = array[int(input("Sono state trovate le seguenti carte, indica la posizione in questo array di quella che intendevi: " + str(array) + " " ))]
+            break
      array_nomi_p[1][i - 1] = nome
   print("Inserisci le stats dei tuoi servitori ")
   for i in range(1, len(array_stats_p[0]) + 1):
