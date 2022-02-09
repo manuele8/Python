@@ -308,10 +308,6 @@ numero_r = 0
 conto_f = 0
 conto_e = 0
 value = -1
-numero = Variables.number
-nomi_array = Variables.array_nomi_p
-stats_array = Variables.array_stats_p
-abilities_array = Variables.array_of_abilities_p
 array_personaggi_amici = []
 array_personaggi_nemici = []
 f_array_of_taunts = []
@@ -351,19 +347,21 @@ def inizio_combattimento():
                     element.salute += conto_e - 1
                     element.salute_f()
 
-
+#funzione di riempimento array amici e nemici
 def Fulfill_Arrays():
     global array_personaggi_amici, array_personaggi_nemici, f_array_of_taunts, e_array_of_taunts, personaggi_locanda1, array_nomi_locanda1, array_stats_locanda1, array_of_abilities_locanda1, array_nomi, array_salute, array_attacco, array_of_abilities
     array_personaggi_amici = []
     array_personaggi_nemici = []
     f_array_of_taunts = []
     e_array_of_taunts = []
+    #visualizza i nomi dei servitori scritti da me e li ricerca nell'array con tutti i nomi ufficiali dei servitori, restituendo la posizione in quell'array (indice è quella posizione) poi usa quell'indice per trovare anche stats, abilità, tipo del servitore
     for i in range(len(nomi_array[0])):
         indice = array_nomi.index(nomi_array[0][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
                                   array_of_abilities[indice])
         array_personaggi_amici.append(personaggio)
+    #quanto sopra però per i servitori nemici
     for i in range(len(nomi_array[1])):
         indice = array_nomi.index(nomi_array[1][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
@@ -483,7 +481,13 @@ def E_vs_P():
                 i = 0
         personaggio_momentaneo_f = None
 
-
+domanda = input("Vuoi partire dagli array già scritti? ")
+if "s" not in domanda:
+    Variables.ask_array()
+numero = Variables.number
+nomi_array = Variables.array_nomi_p
+stats_array = Variables.array_stats_p
+abilities_array = Variables.array_of_abilities_p
 for j in range(numero):
     i, r = 0, 0
     Fulfill_Arrays()
@@ -530,4 +534,7 @@ tie_prob = float((count_tie / numero) * 100)
 lose_prob = float((count_lose / numero) * 100)
 
 print(win_prob, tie_prob, lose_prob)
+print(nomi_array)
+print(stats_array)
+print(abilities_array)
 # print(count_eccezioni)
