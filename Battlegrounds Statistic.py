@@ -1,16 +1,17 @@
 import random
 import Variables
-
+import Rantoli di Morte
 
 class Personaggio:
     # definisci il personaggio
-    def __init__(self, nome, tipo, attacco, salute, abilities=""):
+    def __init__(self, nome, tipo, attacco, salute, abilities="", rantoli_di_morte = []):
         self.nome = nome
         self.tipo = tipo
         self.salute = salute
         self.max_salute = salute
         self.attacco = attacco
         self.abilities = abilities
+        self.rantoli_di_morte = rantoli_di_morte
 
     # funzione attacco tra due, self e obj
     def attacca(self, obj):
@@ -60,68 +61,6 @@ class Personaggio:
         # se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
         if "pv" in self.abilities:
             arr2.append(self)
-
-    #funzione di evocazione servitori alla morte di un servitore con rantolo di morte di questo genere: t è il tipo di servitore, f se amico, e se nemico, num indica il numero di servitori che potenzialmente la carta in questione evocherebbe e name il nome dei token
-    def summon(self, t, num, name):
-        #conto_f e conto_e fanno riferimento a Bucaniere Acquanera, ma questa carta e i suoi effetti vanno rivisti, nuovo indice sarà utile dopo
-        global conto_f, conto_e, nuovo_indice
-        #visualizza la posizione, nella lista dei nomi di tutti i personaggi, del token in questione
-        indice = array_nomi.index(name)
-        if t == "f":
-            arr = array_personaggi_amici
-            arr2 = f_array_of_taunts
-            count = conto_f
-        else:
-            arr = array_personaggi_nemici
-            arr2 = e_array_of_taunts
-            count = conto_e
-        #calcola quanto spazio c'è nell'array degli amici o nemici che sia escludendo il servitore che sta per morire (per questo il -1)
-        lu = len(arr) - 1
-        #individua la posizione della carta in questione nell'array degli amici o nemici che sia
-        indices = arr.index(self)
-        #si può leggere come "se c'è uno spazio, allora...", perché se lu < 7 vuol dire che dopo che è morto il servitore ci sono al massimo 6 spazi occupati ergo almeno 1 è libero.
-        if lu < 7:
-            #7 - lu è proprio il numero degli spazi liberi, per cui se questo numero è minore di quanto la carta vorrebbe evocare fai qualcosa
-            if 7 - lu < num:
-                #setta gli spazi liberi pari al numero di servitori evocabili
-                num = 7 - lu
-                array = []
-                for i in range(num):
-                    #sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
-                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
-                                              array_stats[indice][1],
-                                              array_of_abilities[indice])
-                    obj = personaggio
-                    array.append(obj)
-                    #se hanno provocazione, aggiunge nella lista
-                    if "pv" in obj.abilities:
-                        arr2.append(obj)
-                    # Canaglia - Bucaniere
-                    if obj.tipo == "Pirata" and count > 0:
-                        obj.attacco += count
-                        obj.salute += count
-                        obj.salute_f()
-                #prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array ma si sposta di posizione dopo i token
-                arr[indices:indices] = array
-                #se ne individua la nuova posizione per la funzione rinascita se necessario
-                nuovo_indice = arr.index(self)
-            else:
-                #molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
-                array = []
-                for i in range(num):
-                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
-                                              array_stats[indice][1],
-                                              array_of_abilities[indice])
-                    obj = personaggio
-                    array.append(obj)
-                    if "pv" in obj.abilities:
-                        arr2.append(obj)
-                    if obj.tipo == "Pirata" and count > 0:
-                        obj.attacco += count
-                        obj.salute += count
-                        obj.salute_f()
-                arr[indices:indices] = array
-                nuovo_indice = arr.index(self)
 
     # funzione solo organizzativa, in cui si raccolgono i nomi delle carte che ne evocano altre, la vera funzione è summon
     def summon_abilities(self, t):
@@ -235,22 +174,24 @@ array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esplorat
 array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
 array_stats_tokens_locanda1 = [(1, 1), (1, 1), (1, 1), (1, 1), (2, 2)]
 array_of_abilities_tokens_locanda1 = ["", "", "", "", ""]
+array_of_deathrattles_tokens_locanda1 = [[], [], [], [], []]
 personaggi_tokens_locanda1 = []
 for i in range(len(array_nomi_tokens_locanda1)):
     personaggio = Personaggio(array_nomi_tokens_locanda1[i], array_tipi_tokens_locanda1[i],
                               array_stats_tokens_locanda1[i][0], array_stats_tokens_locanda1[i][1],
-                              array_of_abilities_tokens_locanda1[i])
+                              array_of_abilities_tokens_locanda1[i], array_of_deathrattles_tokens_locanda1[i])
     personaggi_tokens_locanda1.append(personaggio)
 
 array_nomi_tokens_locanda2 = ["Golem Danneggiato", "Tartaruga"]
 array_tipi_tokens_locanda2 = ["Robot", "Bestia"]
 array_stats_tokens_locanda2 = [(2, 1), (2, 3)]
 array_of_abilities_tokens_locanda2 = ["", "pv"]
+array_of_deathrattles_tokens_locanda2 = [[], []]
 personaggi_tokens_locanda2 = []
 for i in range(len(array_nomi_tokens_locanda2)):
     personaggio = Personaggio(array_nomi_tokens_locanda2[i], array_tipi_tokens_locanda2[i],
                               array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1],
-                              array_of_abilities_tokens_locanda2[i])
+                              array_of_abilities_tokens_locanda2[i], array_of_deathrattles_tokens_locanda2[i])
     personaggi_tokens_locanda2.append(personaggio)
 
 array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
@@ -263,10 +204,11 @@ array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago",
 array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
                         (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
 array_of_abilities_locanda1 = ["pvrn", "", "", "", "kj", "kj", "", "", "kj", "kj", "kj", "", "rn", "", "sd", "", "", ""]
+array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['sd'], ['gh'], [], [], [], [], [], [], []]
 personaggi_locanda1 = []
 for i in range(len(array_nomi_locanda1)):
     personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0],
-                              array_stats_locanda1[i][1], array_of_abilities_locanda1[i])
+                              array_stats_locanda1[i][1], array_of_abilities_locanda1[i], array_of_deathrattles_locanda1[i])
     personaggi_locanda1.append(personaggio)
 
 array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere",
@@ -284,6 +226,7 @@ array_stats_locanda2 = [(3, 3), (3, 3), (2, 1), (3, 3), (2, 4), (2, 4), (3, 3), 
                         (5, 3)]
 array_of_abilities_locanda2 = ["", "kj", "kj", "kjpv", "", "", "kj", "", "kjpv", "kj", "", "kj", "kj", "", "kj", "kj",
                                "kj", "pv", "", "", "", "", "kj", "kjpv", ""]
+array_of_deathrattles_locanda2 = [[], [], ['gsd'], ['sp'], [], [], [], [], ['sd'], ['gh'], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
 personaggi_locanda2 = []
 for i in range(len(array_nomi_locanda2)):
     personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0],
