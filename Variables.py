@@ -5,7 +5,7 @@ array_of_abilities_p = (["", "sd", "", "rn"], ["sd", "sd", "pv", "rn"])
 array = []
 number = 10000
 
-
+#funzione utile solo a velocizzare il processo di scrittura dell'array con tutti i servitori sul campo a inizio battaglia, chiedendo il tutto all'esecutore del programma tramite diversi input.
 def ask_array(names):
     global array_nomi_p, array_stats_p, array_of_abilities_p, array
     array_nomi_p = [[], []]
