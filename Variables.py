@@ -3,7 +3,7 @@ array_stats_p = ([(4, 1), (4, 3)], [(3, 4), (2, 2), (3, 2), (2, 3)])
 array_of_abilities_p = (['sd', 'pvsdrn'], ['', 'sd', '', 'vl'])
 array_of_deathrattles_p = ([['gh'], ['gh']], [[], [], [], []])
 array = []
-number = 100
+number = 1000
 
 #funzione utile solo a velocizzare il processo di scrittura dell'array con tutti i servitori sul campo a inizio battaglia, chiedendo il tutto all'esecutore del programma tramite diversi input.
 def ask_array(names):
