@@ -3,7 +3,7 @@ array_stats_p = ([(4, 1), (4, 3)], [(3, 4), (2, 2), (3, 2), (2, 3)])
 array_of_abilities_p = (['sd', 'pvsdrn'], ['', 'sd', '', 'vl'])
 array_of_deathrattles_p = ([['gh'], ['gh']], [[], [], [], []])
 array = []
-number = 1000
+number = 100
 
 #funzione utile solo a velocizzare il processo di scrittura dell'array con tutti i servitori sul campo a inizio battaglia, chiedendo il tutto all'esecutore del programma tramite diversi input.
 def ask_array(names):
@@ -26,7 +26,6 @@ def ask_array(names):
     list_abilities = ["", "pv", "sd", "vl", "rn", "fv", "sfv"]
     list_deathrattles = ['gsd', 'sd2', 'da', 'sg', 'dr', 'ba', 'br', 'st']
     for element in names:
-        print("")
         array2[array2.index(element)] = element.lower()
     for i in range(1, len(array_nomi_p[0]) + 1):
         nome = input("Inserisci il nome del servitore numero " + str(i) + ": ").lower()
