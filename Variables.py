@@ -26,6 +26,7 @@ def ask_array(names):
     list_abilities = ["", "pv", "sd", "vl", "rn", "fv", "sfv"]
     list_deathrattles = ['gsd', 'sd2', 'da', 'sg', 'dr', 'ba', 'br', 'st']
     for element in names:
+        print("")
         array2[array2.index(element)] = element.lower()
     for i in range(1, len(array_nomi_p[0]) + 1):
         nome = input("Inserisci il nome del servitore numero " + str(i) + ": ").lower()

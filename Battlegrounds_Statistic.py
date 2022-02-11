@@ -411,12 +411,14 @@ def board():
     for element in array_personaggi_nemici:
         bib_e.append(element.nome + ' ' + str(element.attacco) + ' ' + str(
             element.salute) + ' ' + str(element.max_salute) + ' ' + str(element.abilities))
+        print("bob")
     return bib_f, bib_e
 
 
-
+s = []
 # funzione di attacco del mio servitore al servitore nemico
 def P_vs_E():
+    global s
     global i, r, taunt, value, numero_r, personaggio_momentaneo_f, personaggio_momentaneo_e
     start = 3
     repeat = True
