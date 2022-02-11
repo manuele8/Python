@@ -1,16 +1,18 @@
 import random
 import Variables
+#import Rantoli_di_Morte
 
 
 class Personaggio:
     # definisci il personaggio
-    def __init__(self, nome, tipo, attacco, salute, abilities=""):
+    def __init__(self, nome, tipo, attacco, salute, abilities= "", rantoli_di_morte = []):
         self.nome = nome
         self.tipo = tipo
         self.salute = salute
         self.max_salute = salute
         self.attacco = attacco
         self.abilities = abilities
+        self.rantoli_di_morte = rantoli_di_morte
 
     # funzione attacco tra due, self e obj
     def attacca(self, obj):
@@ -61,103 +63,24 @@ class Personaggio:
         if "pv" in self.abilities:
             arr2.append(self)
 
-    #funzione di evocazione servitori alla morte di un servitore con rantolo di morte di questo genere: t è il tipo di servitore, f se amico, e se nemico, num indica il numero di servitori che potenzialmente la carta in questione evocherebbe e name il nome dei token
-    def summon(self, t, num, name):
-        #conto_f e conto_e fanno riferimento a Bucaniere Acquanera, ma questa carta e i suoi effetti vanno rivisti, nuovo indice sarà utile dopo
-        global conto_f, conto_e, nuovo_indice
-        #visualizza la posizione, nella lista dei nomi di tutti i personaggi, del token in questione
-        indice = array_nomi.index(name)
-        if t == "f":
-            arr = array_personaggi_amici
-            arr2 = f_array_of_taunts
-            count = conto_f
-        else:
-            arr = array_personaggi_nemici
-            arr2 = e_array_of_taunts
-            count = conto_e
-        #calcola quanto spazio c'è nell'array degli amici o nemici che sia escludendo il servitore che sta per morire (per questo il -1)
-        lu = len(arr) - 1
-        #individua la posizione della carta in questione nell'array degli amici o nemici che sia
-        indices = arr.index(self)
-        #si può leggere come "se c'è uno spazio, allora...", perché se lu < 7 vuol dire che dopo che è morto il servitore ci sono al massimo 6 spazi occupati ergo almeno 1 è libero.
-        if lu < 7:
-            #7 - lu è proprio il numero degli spazi liberi, per cui se questo numero è minore di quanto la carta vorrebbe evocare fai qualcosa
-            if 7 - lu < num:
-                #setta gli spazi liberi pari al numero di servitori evocabili
-                num = 7 - lu
-                array = []
-                for i in range(num):
-                    #sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
-                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
-                                              array_stats[indice][1],
-                                              array_of_abilities[indice])
-                    obj = personaggio
-                    array.append(obj)
-                    #se hanno provocazione, aggiunge nella lista
-                    if "pv" in obj.abilities:
-                        arr2.append(obj)
-                    # Canaglia - Bucaniere
-                    if obj.tipo == "Pirata" and count > 0:
-                        obj.attacco += count
-                        obj.salute += count
-                        obj.salute_f()
-                #prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array ma si sposta di posizione dopo i token
-                arr[indices:indices] = array
-                #se ne individua la nuova posizione per la funzione rinascita se necessario
-                nuovo_indice = arr.index(self)
-            else:
-                #molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
-                array = []
-                for i in range(num):
-                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
-                                              array_stats[indice][1],
-                                              array_of_abilities[indice])
-                    obj = personaggio
-                    array.append(obj)
-                    if "pv" in obj.abilities:
-                        arr2.append(obj)
-                    if obj.tipo == "Pirata" and count > 0:
-                        obj.attacco += count
-                        obj.salute += count
-                        obj.salute_f()
-                arr[indices:indices] = array
-                nuovo_indice = arr.index(self)
 
-    # funzione solo organizzativa, in cui si raccolgono i nomi delle carte che ne evocano altre, la vera funzione è summon
-    def summon_abilities(self, t):
-        if self.nome == "Canaglia":
-            self.summon(t, 1, "Pirata")
-        if self.nome == "Imp Rivoltante":
-            self.summon(t, 2, "Imp")
-    
-    #funzione di risettaggio della salute massima che non si aggiorna da sola istante per istante, quando la salute aumenta oltre la max la si richiama
+    # funzione di risettaggio della salute massima che non si aggiorna da sola istante per istante, quando la salute aumenta oltre la max la si richiama
     def salute_f(self):
         if self.salute > self.max_salute:
             self.max_salute = self.salute
-    
-    #funzione specifica per determinati servitori che incrementano le proprie o le stats di altri servitori in conseguenza di determinati eventi
+
+    # funzione specifica per determinati servitori che incrementano le proprie o le stats di altri servitori in conseguenza di determinati eventi
     def add_stats(self, arr):
         # Iena Rovistatrice
-        #se il servitore che sta morendo è una bestia, verifica se ci sono iene rovistatrici nella mia board
+        # se il servitore che sta morendo è una bestia, verifica se ci sono iene rovistatrici nella mia board
         if self.tipo == "Bestia":
             for element in arr:
-                #la iena non deve coincidere con il servitore che sta morendo, o meglio è una bestia dunque le altre iene saranno buffate dalla sua morte ma la iena morente non può auto-buffarsi
+                # la iena non deve coincidere con il servitore che sta morendo, o meglio è una bestia dunque le altre iene saranno buffate dalla sua morte ma la iena morente non può auto-buffarsi
                 if element.nome == "Iena Rovistatrice" and element != self:
                     element.attacco += 2
                     element.salute += 1
                     element.salute_f()
         # Ingannatore Impulsivo
-        #se muore l'ingannatore impulsivo, la sua salute massima viene trasferita su un altro servitore casuale (vi deve essere almeno un altro servitore oltre l'ingannatore per avvenire)
-        if self.nome == "Ingannatore Impulsivo":
-            if len(arr) > 1:
-                #while loop inserito solo per evitare che l'ingannatore impulsivo morente si auto-buffi, l'elemento buffato deve essere diverso dal servitore morente
-                #si sceglie randomicamente tra tutti, se capita self (ingannatore impulsivo morente), riprova
-                while 1:
-                    elemento = random.choice(arr)
-                    if elemento != self:
-                        break
-                elemento.salute += self.max_salute
-                elemento.salute_f()
 
     def aggiornamento_combattimento(self):
         global conto_f, conto_e
@@ -189,43 +112,122 @@ class Personaggio:
                     else:
                         element.salute += ge - conto_e
 
+    def deathrattles(self, arr, element, t):
+        if element == "sp":
+            self.summon(t, 1, "Pirata")
+        if element == "gh":
+            self.health_random_buff(arr)
+            print("buffato")
+
+    def summon(self, t, num, name):
+        # conto_f e conto_e fanno riferimento a Bucaniere Acquanera, ma questa carta e i suoi effetti vanno rivisti, nuovo indice sarà utile dopo
+        global conto_f, conto_e, nuovo_indice
+        # visualizza la posizione, nella lista dei nomi di tutti i personaggi, del token in questione
+        indice = array_nomi.index(name)
+        if t == "f":
+            arr = array_personaggi_amici
+            arr2 = f_array_of_taunts
+            count = conto_f
+        else:
+            arr = array_personaggi_nemici
+            arr2 = e_array_of_taunts
+            count = conto_e
+        # calcola quanto spazio c'è nell'array degli amici o nemici che sia escludendo il servitore che sta per morire (per questo il -1)
+        lu = len(arr) - 1
+        # individua la posizione della carta in questione nell'array degli amici o nemici che sia
+        indices = arr.index(self)
+        # si può leggere come "se c'è uno spazio, allora...", perché se lu < 7 vuol dire che dopo che è morto il servitore ci sono al massimo 6 spazi occupati ergo almeno 1 è libero.
+        if lu < 7:
+            # 7 - lu è proprio il numero degli spazi liberi, per cui se questo numero è minore di quanto la carta vorrebbe evocare fai qualcosa
+            if 7 - lu < num:
+                # setta gli spazi liberi pari al numero di servitori evocabili
+                num = 7 - lu
+                array = []
+                for i in range(num):
+                    # sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
+                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
+                                              array_stats[indice][1],
+                                              array_of_abilities[indice], array_of_deathrattles[indice])
+                    obj = personaggio
+                    array.append(obj)
+                    # se hanno provocazione, aggiunge nella lista
+                    if "pv" in obj.abilities:
+                        arr2.append(obj)
+                    # Canaglia - Bucaniere
+                    '''if obj.tipo == "Pirata" and count > 0:
+                        obj.attacco += count
+                        obj.salute += count
+                        obj.salute_f()'''
+                # prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array ma si sposta di posizione dopo i token
+                arr[indices:indices] = array
+                # se ne individua la nuova posizione per la funzione rinascita se necessario
+                nuovo_indice = arr.index(self)
+            else:
+                # molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
+                array = []
+                for i in range(num):
+                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
+                                              array_stats[indice][1],
+                                              array_of_abilities[indice], array_of_deathrattles[indice])
+                    obj = personaggio
+                    array.append(obj)
+                    if "pv" in obj.abilities:
+                        arr2.append(obj)
+                    '''if obj.tipo == "Pirata" and count > 0:
+                        obj.attacco += count
+                        obj.salute += count
+                        obj.salute_f()'''
+                arr[indices:indices] = array
+                nuovo_indice = arr.index(self)
+
+    def health_random_buff(self, arr):
+        if len(arr) > 1:
+            # while loop inserito solo per evitare che l'ingannatore impulsivo morente si auto-buffi, l'elemento buffato deve essere diverso dal servitore morente
+            # si sceglie randomicamente tra tutti, se capita self (ingannatore impulsivo morente), riprova
+            while 1:
+                elemento = random.choice(arr)
+                if elemento != self:
+                    break
+            elemento.salute += self.max_salute
+            elemento.salute_f()
+
     # solita variabile t che indica se il servitore che muore è amico o meno + variabile s che specifica le situazioni in cui il servitore a morire è quello attaccato, se s è None, è morto il servitore che ha attaccato, altrimenti quello che è stato attaccato
     def morte(self, t, s=None):
         global numero_r, i, value, r, nuovo_indice
         nuovo_indice = None
         if t == "f":
             arr = array_personaggi_amici
-            #prs = arr[i]
+            # prs = arr[i]
             or_len = len(arr)
             if "pv" in self.abilities:
                 f_array_of_taunts.remove(self)
         else:
             arr = array_personaggi_nemici
-            #prs = arr[r]
+            # prs = arr[r]
             or_len = len(arr)
             if "pv" in self.abilities:
                 e_array_of_taunts.remove(self)
-        #possibili rantoli di morte del servitore, da rivedere in futuro
-        self.add_stats(arr)
-        self.summon_abilities(t)
+        # possibili rantoli di morte del servitore, da rivedere in futuro
+        for element in self.rantoli_di_morte:
+            self.deathrattles(arr, element, t)
         if nuovo_indice == None:
             nuovo_indice = arr.index(self)
-        #se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
+        # se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
         if not (len(arr) >= 7) and "rn" in self.abilities:
             self.reborn(t)
             self.aggiornamento_combattimento()
         else:
-            #per via di quanto sopra espresso
+            # per via di quanto sopra espresso
             arr.remove(self)
         # qui si modifica l'ordine di combattimento dopo la morte del servitore (sono ovviamente solo i casi in cui il servitore morto è quello attaccato)
-        #speculare a quanto sotto
+        # speculare a quanto sotto
         if t == "f" and s != None:
             if numero_r < i:
                 if i > 0:
                     i += len(arr) - or_len
         if t == "e" and s != None:
-            #numero r indica la posizione del servitore attaccato, r la posizione del servitore che attaccherà
-            #interessa solo se viene ucciso un servitore che aveva già attaccato o la cui posizione è inferiore a quello che attaccherà perché in caso contrario l'ordine non cambia
+            # numero r indica la posizione del servitore attaccato, r la posizione del servitore che attaccherà
+            # interessa solo se viene ucciso un servitore che aveva già attaccato o la cui posizione è inferiore a quello che attaccherà perché in caso contrario l'ordine non cambia
             if numero_r < r:
                 if r > 0:
                     r += len(arr) - or_len
@@ -235,22 +237,24 @@ array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esplorat
 array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
 array_stats_tokens_locanda1 = [(1, 1), (1, 1), (1, 1), (1, 1), (2, 2)]
 array_of_abilities_tokens_locanda1 = ["", "", "", "", ""]
+array_of_deathrattles_tokens_locanda1 = [[], [], [], [], []]
 personaggi_tokens_locanda1 = []
 for i in range(len(array_nomi_tokens_locanda1)):
     personaggio = Personaggio(array_nomi_tokens_locanda1[i], array_tipi_tokens_locanda1[i],
                               array_stats_tokens_locanda1[i][0], array_stats_tokens_locanda1[i][1],
-                              array_of_abilities_tokens_locanda1[i])
+                              array_of_abilities_tokens_locanda1[i], array_of_deathrattles_tokens_locanda1[i])
     personaggi_tokens_locanda1.append(personaggio)
 
 array_nomi_tokens_locanda2 = ["Golem Danneggiato", "Tartaruga"]
 array_tipi_tokens_locanda2 = ["Robot", "Bestia"]
 array_stats_tokens_locanda2 = [(2, 1), (2, 3)]
 array_of_abilities_tokens_locanda2 = ["", "pv"]
+array_of_deathrattles_tokens_locanda2 = [[], []]
 personaggi_tokens_locanda2 = []
 for i in range(len(array_nomi_tokens_locanda2)):
     personaggio = Personaggio(array_nomi_tokens_locanda2[i], array_tipi_tokens_locanda2[i],
                               array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1],
-                              array_of_abilities_tokens_locanda2[i])
+                              array_of_abilities_tokens_locanda2[i], array_of_deathrattles_tokens_locanda2[i])
     personaggi_tokens_locanda2.append(personaggio)
 
 array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
@@ -262,11 +266,13 @@ array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago",
                        "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
 array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
                         (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
-array_of_abilities_locanda1 = ["pvrn", "", "", "", "kj", "kj", "", "", "kj", "kj", "kj", "", "rn", "", "sd", "", "", ""]
+array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
+array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['sd1'], ['gh'], [], [], [], [], [], [], []]
 personaggi_locanda1 = []
 for i in range(len(array_nomi_locanda1)):
     personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0],
-                              array_stats_locanda1[i][1], array_of_abilities_locanda1[i])
+                              array_stats_locanda1[i][1], array_of_abilities_locanda1[i],
+                              array_of_deathrattles_locanda1[i])
     personaggi_locanda1.append(personaggio)
 
 array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere",
@@ -282,17 +288,20 @@ array_tipi_locanda2 = ["Robot", "Pirata", None, "Demone", "Verrospino", "Demone"
 array_stats_locanda2 = [(3, 3), (3, 3), (2, 1), (3, 3), (2, 4), (2, 4), (3, 3), (3, 2), (1, 3), (2, 3), (3, 2), (2, 4),
                         (2, 2), (3, 3), (2, 2), (3, 3), (3, 2), (2, 4), (3, 2), (3, 3), (2, 2), (2, 5), (2, 4), (3, 5),
                         (5, 3)]
-array_of_abilities_locanda2 = ["", "kj", "kj", "kjpv", "", "", "kj", "", "kjpv", "kj", "", "kj", "kj", "", "kj", "kj",
-                               "kj", "pv", "", "", "", "", "kj", "kjpv", ""]
+array_of_abilities_locanda2 = ["", "", "", "pv", "", "", "", "", "pv", "", "", "", "", "", "", "",
+                               "", "pv", "", "", "", "", "", "pv", ""]
+array_of_deathrattles_locanda2 = [[], [], ['gsd'], ['sd2'], [], [], [], [], ['da'], ['sg'], [], [], ['dr'], [], ['ba'], ['br'], ['st'],
+                                  [], [], [], [], [], [], [], []]
 personaggi_locanda2 = []
 for i in range(len(array_nomi_locanda2)):
     personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0],
-                              array_stats_locanda2[i][1], array_of_abilities_locanda2[i])
+                              array_stats_locanda2[i][1], array_of_abilities_locanda2[i], array_of_deathrattles_locanda2[i])
     personaggi_locanda2.append(personaggio)
 array_nomi = array_nomi_tokens_locanda1 + array_nomi_tokens_locanda2 + array_nomi_locanda1 + array_nomi_locanda2
 array_tipi = array_tipi_tokens_locanda1 + array_tipi_tokens_locanda2 + array_tipi_locanda1 + array_tipi_locanda2
 array_stats = array_stats_tokens_locanda1 + array_stats_tokens_locanda2 + array_stats_locanda1 + array_stats_locanda2
 array_of_abilities = array_of_abilities_tokens_locanda1 + array_of_abilities_tokens_locanda2 + array_of_abilities_locanda1 + array_of_abilities_locanda2
+array_of_deathrattles = array_of_deathrattles_tokens_locanda1 + array_of_deathrattles_tokens_locanda2 + array_of_deathrattles_locanda1 + array_of_deathrattles_locanda2
 personaggi = personaggi_tokens_locanda1 + personaggi_tokens_locanda2 + personaggi_locanda1 + personaggi_locanda2
 taunt = None
 nuovo_indice = None
@@ -347,42 +356,45 @@ def inizio_combattimento():
                     element.salute += conto_e - 1
                     element.salute_f()
 
-#funzione di riempimento array amici e nemici
+
+# funzione di riempimento array amici e nemici
 def Fulfill_Arrays():
     global array_personaggi_amici, array_personaggi_nemici, f_array_of_taunts, e_array_of_taunts, personaggi_locanda1, array_nomi_locanda1, array_stats_locanda1, array_of_abilities_locanda1, array_nomi, array_salute, array_attacco, array_of_abilities
     array_personaggi_amici = []
     array_personaggi_nemici = []
     f_array_of_taunts = []
     e_array_of_taunts = []
-    #visualizza i nomi dei servitori scritti da me e li ricerca nell'array con tutti i nomi ufficiali dei servitori, restituendo la posizione in quell'array (indice è quella posizione) poi usa quell'indice per trovare anche stats, abilità, tipo del servitore
+    # visualizza i nomi dei servitori scritti da me e li ricerca nell'array con tutti i nomi ufficiali dei servitori, restituendo la posizione in quell'array (indice è quella posizione) poi usa quell'indice per trovare anche stats, abilità, tipo del servitore
     for i in range(len(nomi_array[0])):
         indice = array_nomi.index(nomi_array[0][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
-                                  array_of_abilities[indice])
+                                  array_of_abilities[indice], array_of_deathrattles[indice])
         array_personaggi_amici.append(personaggio)
-    #quanto sopra però per i servitori nemici
+    # quanto sopra però per i servitori nemici
     for i in range(len(nomi_array[1])):
         indice = array_nomi.index(nomi_array[1][i])
         personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
                                   array_stats[indice][1],
-                                  array_of_abilities[indice])
+                                  array_of_abilities[indice], array_of_deathrattles[indice])
         array_personaggi_nemici.append(personaggio)
-    #stats_array[0] contiene le stats di tutte le carte amiche, per cui va in loop con ogni elemento in modo da settare l'attacco dei personaggi amici pari a quanto scritto nell'array, similmente per le abilità per cui si aggiunge la variabile indice utile in quanto diverso l'ordine e la lunghezza di quell'array (non si può usare i)
+    # stats_array[0] contiene le stats di tutte le carte amiche, per cui va in loop con ogni elemento in modo da settare l'attacco dei personaggi amici pari a quanto scritto nell'array, similmente per le abilità per cui si aggiunge la variabile indice utile in quanto diverso l'ordine e la lunghezza di quell'array (non si può usare i)
     for i in range(len(stats_array[0])):
         indice = array_nomi.index(array_personaggi_amici[i].nome)
         array_personaggi_amici[i].attacco = stats_array[0][i][0]
         array_personaggi_amici[i].salute = stats_array[0][i][1]
         array_personaggi_amici[i].max_salute = array_personaggi_amici[i].salute
         array_personaggi_amici[i].abilities = array_of_abilities[indice] + abilities_array[0][i]
-        #simile a quanto sopra, ma per i nemici
-        for i in range(len(stats_array[1])):
+        array_personaggi_amici[i].rantoli_di_morte = array_of_deathrattles[indice] + deathrattles_array[0][i]
+    # simile a quanto sopra, ma per i nemici
+    for i in range(len(stats_array[1])):
         indice = array_nomi.index(array_personaggi_nemici[i].nome)
         array_personaggi_nemici[i].attacco = stats_array[1][i][0]
         array_personaggi_nemici[i].salute = stats_array[1][i][1]
         array_personaggi_nemici[i].max_salute = array_personaggi_nemici[i].salute
         array_personaggi_nemici[i].abilities = array_of_abilities[indice] + abilities_array[1][i]
-    #se provocazione aggiunge nelle liste dei servitori con provocazione
+        array_personaggi_nemici[i].rantoli_di_morte = array_of_deathrattles[indice] + deathrattles_array[1][i]
+    # se provocazione aggiunge nelle liste dei servitori con provocazione
     for element in array_personaggi_amici:
         if "pv" in element.abilities:
             f_array_of_taunts.append(element)
@@ -390,7 +402,20 @@ def Fulfill_Arrays():
         if "pv" in element.abilities:
             e_array_of_taunts.append(element)
 
-#funzione di attacco del mio servitore al servitore nemico
+def board():
+    bib_f = []
+    bib_e = []
+    for element in array_personaggi_amici:
+        bib_f.append(element.nome + ' ' + str(element.attacco) + ' ' + str(
+            element.salute) + ' ' + str(element.max_salute) + ' ' + str(element.abilities))
+    for element in array_personaggi_nemici:
+        bib_e.append(element.nome + ' ' + str(element.attacco) + ' ' + str(
+            element.salute) + ' ' + str(element.max_salute) + ' ' + str(element.abilities))
+    return bib_f, bib_e
+
+
+
+# funzione di attacco del mio servitore al servitore nemico
 def P_vs_E():
     global i, r, taunt, value, numero_r, personaggio_momentaneo_f, personaggio_momentaneo_e
     start = 3
@@ -403,35 +428,35 @@ def P_vs_E():
     for n in range(start, 4):
         if not repeat or len(array_personaggi_nemici) == 0:
             break
-        #se non ci sono servitori nemici con provocazione, scegline uno randomicamente (numero r ne indica la posizione)
+        # se non ci sono servitori nemici con provocazione, scegline uno randomicamente (numero r ne indica la posizione)
         if len(e_array_of_taunts) == 0:
             numero_r = random.randrange(0, len(array_personaggi_nemici))
-        #se ci sono scegli tra essi randomicamente, taunt è il personaggio, numero_r la posizione
+        # se ci sono scegli tra essi randomicamente, taunt è il personaggio, numero_r la posizione
         else:
             taunt = random.choice(e_array_of_taunts)
             numero_r = array_personaggi_nemici.index(taunt)
         elemento_casuale = array_personaggi_nemici[numero_r]
         print('\n' + array_personaggi_amici[i].nome + ' ' + str(array_personaggi_amici[i].attacco) + ' ' + str(
-            array_personaggi_amici[i].salute) + ' ' + str(array_personaggi_amici[i].max_salute) + " (" + str(
-            i) + ")" + " ha lottato con " + elemento_casuale.nome + ' ' + str(elemento_casuale.attacco) + ' ' + str(
+            array_personaggi_amici[i].salute) + ' ' + str(array_personaggi_amici[i].max_salute) + ' ' + str(array_personaggi_amici[i].abilities) + " (" + str(
+            i) +  ")" + " ha lottato con " + elemento_casuale.nome + ' ' + str(elemento_casuale.attacco) + ' ' + str(
             elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + " (" + str(numero_r) + ")" + '\n')
         array_personaggi_amici[i].attacca(elemento_casuale)
-        #se il mio servitore attaccando muore, l'ordine di attacco rimane invariato (+1 ma muore, quindi -1 ergo +0), vai comunque nella funzione morte
+        # se il mio servitore attaccando muore, l'ordine di attacco rimane invariato (+1 ma muore, quindi -1 ergo +0), vai comunque nella funzione morte
         if array_personaggi_amici[i].salute <= 0:
             repeat = False
             array_personaggi_amici[i].morte("f")
             if i >= len(array_personaggi_amici):
                 i = 0
-        #se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario per cui intanto rendi la variabile add_1 vera
+        # se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario per cui intanto rendi la variabile add_1 vera
         else:
             if not "fv" in array_personaggi_amici[i].abilities:
                 personaggio_momentaneo_f = array_personaggi_amici[i]
                 i += 1
                 if i >= len(array_personaggi_amici):
                     i = 0
-        #se muore il servitore nemico quando il mio servitore attacca, funzione morte in cui cambierà l'ordine di attacco
+        # se muore il servitore nemico quando il mio servitore attacca, funzione morte in cui cambierà l'ordine di attacco
         if array_personaggi_nemici[numero_r].salute <= 0:
-            #solo se il personaggio amico morto non è quello che aveva appena attaccato aggiungi 1 (che si sarebbe dovuto aggiungere prima, ma si è aspettato attaccasse il nemico)
+            # solo se il personaggio amico morto non è quello che aveva appena attaccato aggiungi 1 (che si sarebbe dovuto aggiungere prima, ma si è aspettato attaccasse il nemico)
             if personaggio_momentaneo_e == array_personaggi_nemici[numero_r]:
                 r -= 1
             array_personaggi_nemici[numero_r].morte("e", "f")
@@ -439,9 +464,11 @@ def P_vs_E():
                 r = 0
             if i >= len(array_personaggi_amici):
                 i = 0
+        print(board())
         personaggio_momentaneo_e = None
 
-#funzione di attacco del servitore nemico al mio servitore, speculare a quanto visto sopra
+
+# funzione di attacco del servitore nemico al mio servitore, speculare a quanto visto sopra
 def E_vs_P():
     global i, r, taunt, value, numero_r, personaggio_momentaneo_f, personaggio_momentaneo_e
     start = 3
@@ -460,7 +487,7 @@ def E_vs_P():
             numero_r = array_personaggi_amici.index(taunt)
         elemento_casuale = array_personaggi_amici[numero_r]
         print('\n' + array_personaggi_nemici[r].nome + ' ' + str(array_personaggi_nemici[r].attacco) + ' ' + str(
-            array_personaggi_nemici[r].salute) + ' ' + str(array_personaggi_nemici[r].max_salute) + " (" + str(
+            array_personaggi_nemici[r].salute) + ' ' + str(array_personaggi_nemici[r].max_salute) + ' ' + str(array_personaggi_nemici[r].abilities) + " (" + str(
             r) + ')' + " ha lottato con " + elemento_casuale.nome + ' ' + str(elemento_casuale.attacco) + ' ' + str(
             elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + ' (' + str(numero_r) + ')' + '\n')
         array_personaggi_nemici[r].attacca(elemento_casuale)
@@ -476,13 +503,15 @@ def E_vs_P():
                 if r >= len(array_personaggi_nemici):
                     r = 0
         if array_personaggi_amici[numero_r].salute <= 0:
-            #solo se il personaggio amico morto è quello che aveva appena attaccato togli 1, perché è come se non avesse ancora attaccato se muore prima di switchare attaccante
+            # solo se il personaggio amico morto è quello che aveva appena attaccato togli 1, perché è come se non avesse ancora attaccato se muore prima di switchare attaccante
             if personaggio_momentaneo_f == array_personaggi_amici[numero_r]:
                 i -= 1
             array_personaggi_amici[numero_r].morte("f", "e")
             if i >= len(array_personaggi_amici):
                 i = 0
+        print(board())
         personaggio_momentaneo_f = None
+
 
 domanda = input("Vuoi partire dagli array già scritti? ")
 if "s" not in domanda:
@@ -491,13 +520,14 @@ numero = Variables.number
 nomi_array = Variables.array_nomi_p
 stats_array = Variables.array_stats_p
 abilities_array = Variables.array_of_abilities_p
+deathrattles_array = Variables.array_of_deathrattles_p
 for j in range(numero):
     i, r = 0, 0
     Fulfill_Arrays()
     print(len(array_personaggi_amici))
     inizio_combattimento()
     if len(array_personaggi_nemici) > len(array_personaggi_amici):
-        first_player = 1 
+        first_player = 1
     elif len(array_personaggi_nemici) < len(array_personaggi_amici):
         first_player = 0
     else:
@@ -526,10 +556,13 @@ for j in range(numero):
             print(element.nome, element.attacco, element.salute, element.abilities)'''
     if len(array_personaggi_amici) == 0 and len(array_personaggi_nemici) > 0:
         count_lose += 1
+        print("Lost")
     elif len(array_personaggi_amici) > 0 and len(array_personaggi_nemici) == 0:
         count_win += 1
+        print("Won")
     elif len(array_personaggi_amici) == 0 and len(array_personaggi_nemici) == 0:
         count_tie += 1
+        print("Tied")
 
 print(count_win, count_tie, count_lose)
 win_prob = float((count_win / numero) * 100)
@@ -540,4 +573,5 @@ print(win_prob, tie_prob, lose_prob)
 print('array_nomi_p = ' + str(nomi_array))
 print('array_stats_p = ' + str(stats_array))
 print('array_of_abilities_p = ' + str(abilities_array))
+print('array_of_deathrattles_p = ' + str(deathrattles_array))
 # print(count_eccezioni)

@@ -1,5 +1,3 @@
-array = ["bambino", "giovanni", "federico", "roberto"]
-if "bambi" not in "bambino con le rotelle":
-    print("GIGI")
-else:
-    print("sisi")
+stringa = "afasdfd, asdfasdf, adsfasdf, asdgadsf, dasgas"
+rantoli_di_morte = stringa.split(', ')
+print(rantoli_di_morte)
