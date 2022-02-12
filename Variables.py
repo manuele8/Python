@@ -1,9 +1,9 @@
-array_nomi_p = (['Canaglia', 'Elementale'], ['Canaglia', 'Elementale', 'Elementale', 'Elementale'])
-array_stats_p = ([(4, 1), (4, 3)], [(3, 4), (2, 2), (3, 2), (2, 3)])
-array_of_abilities_p = (['sd', 'pvsdrn'], ['', 'sd', '', 'vl'])
-array_of_deathrattles_p = ([['gh'], ['gh']], [[], [], [], []])
+array_nomi_p = (['Macao', 'Macao', 'Rana Salterina', 'Rana Salterina', 'Ratto delle Fogne', 'Ratto delle Fogne'], ['Canaglia', 'Elementale', 'Elementale', 'Elementale'])
+array_stats_p = ([(1, 4), (2, 3), (2, 1), (1, 1), (3, 2), (2, 1)], [(8, 50), (2, 2), (3, 2), (2, 3)])
+array_of_abilities_p = (['rn', 'rn', 'rn', 'rn', 'rn', 'rn'], ['', 'sd', '', 'vl'])
+array_of_deathrattles_p = ([[], [], [], [], [], [], []], [[], [], [], []])
 array = []
-number = 100
+number = 1000
 
 #funzione utile solo a velocizzare il processo di scrittura dell'array con tutti i servitori sul campo a inizio battaglia, chiedendo il tutto all'esecutore del programma tramite diversi input.
 def ask_array(names):
@@ -100,7 +100,7 @@ def ask_array(names):
         else:
             array_of_deathrattles_p[0][i - 1] = [""]
     print("Inserisci i rantoli di morte dei servitori nemici, ricordati che i rantoli di morte possono essere così scritti: " + str(
-        list_abilities))
+        list_deathrattles))
     for i in range(1, len(array_of_deathrattles_p[1]) + 1):
         rantoli_di_morte = input("Inserisci i rantoli di morte del servitore numero " + str(i) + ": ")
         if not rantoli_di_morte == "":

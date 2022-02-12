@@ -40,7 +40,7 @@ class Personaggio:
     # funziona rinascita, il servitore rinasce con salute pari a 1
     # t indica se il servitore è amico (f) o nemico (e)
     def reborn(self, t):
-        global r, numero_r, i, nuovo_indice
+        global r, numero_r, i, nuovo_indice, array_of_deathrattles_locanda2, array_nomi_locanda2
         if t == "f":
             arr = array_personaggi_amici
             arr2 = f_array_of_taunts
@@ -50,6 +50,7 @@ class Personaggio:
         # ricerca tra tutti i personaggi nell'elenco, quello avente lo stesso nome del servitore morto e ne crea una copia con uno di salute
         indice = array_nomi.index(self.nome)
         nuovo = personaggi[indice]
+        self.rantoli_di_morte = nuovo.rantoli_di_morte
         self.abilities = nuovo.abilities
         self.attacco = nuovo.attacco
         self.max_salute = nuovo.salute
@@ -118,6 +119,20 @@ class Personaggio:
         if element == "gh":
             self.health_random_buff(arr)
             print("buffato")
+        if element == "s2d":
+            self.summon(t, 2, "Imp")
+        if element == "s1d":
+            self.summon(t, 1, "Imp")
+        if element == "gd":
+            self.give_random_minion_divine_shield(arr)
+        if element == "sg":
+            self.summon(t, 1, "Golem Danneggiato")
+        if element == "st":
+            self.summon(t, 1, "Tartaruga")
+        if element == "ba":
+            self.all_minions_buff(arr)
+        if element == "br":
+            self.random_buff(arr)
 
     def summon(self, t, num, name):
         # conto_f e conto_e fanno riferimento a Bucaniere Acquanera, ma questa carta e i suoi effetti vanno rivisti, nuovo indice sarà utile dopo
@@ -145,9 +160,16 @@ class Personaggio:
                 array = []
                 for i in range(num):
                     # sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
-                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
-                                              array_stats[indice][1],
-                                              array_of_abilities[indice], array_of_deathrattles[indice])
+                    if len(array_of_deathrattles[indice]) > 1:
+                        raio = []
+                        raio.append(array_of_deathrattles[indice][0])
+                        personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
+                                                  array_stats[indice][1],
+                                                  array_of_abilities[indice], raio)
+                    else:
+                        personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
+                                                  array_stats[indice][1],
+                                                  array_of_abilities[indice], array_of_deathrattles[indice])
                     obj = personaggio
                     array.append(obj)
                     # se hanno provocazione, aggiunge nella lista
@@ -166,9 +188,16 @@ class Personaggio:
                 # molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
                 array = []
                 for i in range(num):
-                    personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
-                                              array_stats[indice][1],
-                                              array_of_abilities[indice], array_of_deathrattles[indice])
+                    if len(array_of_deathrattles[indice]) > 1:
+                        raio = []
+                        raio.append(array_of_deathrattles[indice][0])
+                        personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
+                                                  array_stats[indice][1],
+                                                  array_of_abilities[indice], raio)
+                    else:
+                        personaggio = Personaggio(array_nomi[indice], array_tipi[indice], array_stats[indice][0],
+                                                  array_stats[indice][1],
+                                                  array_of_abilities[indice], array_of_deathrattles[indice])
                     obj = personaggio
                     array.append(obj)
                     if "pv" in obj.abilities:
@@ -180,16 +209,60 @@ class Personaggio:
                 arr[indices:indices] = array
                 nuovo_indice = arr.index(self)
 
+    def all_minions_buff(self, arr):
+        #dà a tutti i servitori diversi da self +1/+1 pertanto è anche richiamata la funzione salute_f che vuole ripristinare la max_health se necessario.
+        for element in arr:
+            if element != self:
+                element.attacco += 1
+                element.salute += 1
+                element.salute_f()
+
+    def random_buff(self, arr):
+        raio = arr[:]
+        for element in raio:
+            if element.tipo != "Bestia" or element.salute <= 0:
+                raio.remove(element)
+        if len(raio) > 0:
+            elemento = random.choice(raio)
+            elemento.attacco += 1
+            elemento.salute += 1
+            elemento.salute_f()
+            elemento.rantoli_di_morte += ['br']
+            #print(elemento.nome + ' ' + str(arr.index(elemento)), elemento.rantoli_di_morte)
+
     def health_random_buff(self, arr):
-        if len(arr) > 1:
-            # while loop inserito solo per evitare che l'ingannatore impulsivo morente si auto-buffi, l'elemento buffato deve essere diverso dal servitore morente
-            # si sceglie randomicamente tra tutti, se capita self (ingannatore impulsivo morente), riprova
-            while 1:
-                elemento = random.choice(arr)
-                if elemento != self:
-                    break
+        #fa una copia dell'array amici o nemici che sia e elimina i servitori che siano morti o debbano esserlo oltre a self.
+        #se tale array ha almeno un minion, dà health a un minion scelto randomicamente tra quelli
+        raio = arr[:]
+        for element in raio:
+            if element == self or element.salute <= 0:
+                raio.remove(element)
+        if len(raio) > 0:
+            elemento = random.choice(raio)
             elemento.salute += self.max_salute
             elemento.salute_f()
+
+    def give_random_minion_divine_shield(self, arr):
+        #fa una copia dell'array amici o nemici che sia e ne elimina i minion che abbiano già scudo divino e quelli che sono morti o dovrebbero esserlo.
+        #se tale array ha almeno un minion, dà scudo divino a un minion scelto randomicamente tra quelli
+        raio = arr[:]
+        for element in raio:
+            if element.salute <= 0 or "sd" in element.abilities:
+                raio.remove(element)
+        if len(raio) > 0:
+            elemento = random.choice(raio)
+            elemento.abilities = elemento.abilities + "sd"
+
+    def Triggera_rantolo_di_morte(self, arr, t):
+        raio = arr[:]
+        for element in raio:
+            if element == self or element.rantoli_di_morte == []:
+                raio.remove(element)
+        if len(raio) > 0:
+            elemento = random.choice(raio)
+            copia = elemento.rantoli_di_morte[:]
+            for element in copia:
+                elemento.deathrattles(arr, element, t)
 
     # solita variabile t che indica se il servitore che muore è amico o meno + variabile s che specifica le situazioni in cui il servitore a morire è quello attaccato, se s è None, è morto il servitore che ha attaccato, altrimenti quello che è stato attaccato
     def morte(self, t, s=None):
@@ -231,78 +304,79 @@ class Personaggio:
             if numero_r < r:
                 if r > 0:
                     r += len(arr) - or_len
+array_nomi, array_stats, array_of_deathrattles, array_tipi, array_of_abilities, personaggi, array_of_deathrattles_locanda2, array_nomi_locanda2 = [], [], [], [], [], [], [], []
+def Fulfill_Array_Start():
+    global array_nomi, array_stats, array_of_deathrattles, array_tipi, personaggi, array_of_abilities, array_of_deathrattles_locanda2, array_nomi_locanda2
+    array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esploratore", "Elementale"]
+    array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
+    array_stats_tokens_locanda1 = [(1, 1), (1, 1), (1, 1), (1, 1), (2, 2)]
+    array_of_abilities_tokens_locanda1 = ["", "", "", "", ""]
+    array_of_deathrattles_tokens_locanda1 = [[], [], [], [], []]
+    personaggi_tokens_locanda1 = []
+    for i in range(len(array_nomi_tokens_locanda1)):
+        personaggio = Personaggio(array_nomi_tokens_locanda1[i], array_tipi_tokens_locanda1[i],
+                                  array_stats_tokens_locanda1[i][0], array_stats_tokens_locanda1[i][1],
+                                  array_of_abilities_tokens_locanda1[i], array_of_deathrattles_tokens_locanda1[i])
+        personaggi_tokens_locanda1.append(personaggio)
+    array_nomi_tokens_locanda2 = ["Golem Danneggiato", "Tartaruga"]
+    array_tipi_tokens_locanda2 = ["Robot", "Bestia"]
+    array_stats_tokens_locanda2 = [(2, 1), (2, 3)]
+    array_of_abilities_tokens_locanda2 = ["", "pv"]
+    array_of_deathrattles_tokens_locanda2 = [[], []]
+    personaggi_tokens_locanda2 = []
+    for i in range(len(array_nomi_tokens_locanda2)):
+        personaggio = Personaggio(array_nomi_tokens_locanda2[i], array_tipi_tokens_locanda2[i],
+                                  array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1],
+                                  array_of_abilities_tokens_locanda2[i], array_of_deathrattles_tokens_locanda2[i])
+        personaggi_tokens_locanda2.append(personaggio)
 
+    array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
+                           "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio", "Geomante Lamaspina",
+                           "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo",
+                           "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira",
+                           "Vendimentale", "Verrospino Abbronzato"]
+    array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia",
+                           "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
+    array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
+                            (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
+    array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
+    array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['s2d'], ['gh'], [], [], [], [], [], [], []]
+    personaggi_locanda1 = []
+    for i in range(len(array_nomi_locanda1)):
+        personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0],
+                                  array_stats_locanda1[i][1], array_of_abilities_locanda1[i],
+                                  array_of_deathrattles_locanda1[i])
+        personaggi_locanda1.append(personaggio)
 
-array_nomi_tokens_locanda1 = ["Pirata", "Gatto Soriano", "Imp", "Murloc Esploratore", "Elementale"]
-array_tipi_tokens_locanda1 = ["Pirata", "Bestia", "Demone", "Murloc", "Elementale"]
-array_stats_tokens_locanda1 = [(1, 1), (1, 1), (1, 1), (1, 1), (2, 2)]
-array_of_abilities_tokens_locanda1 = ["", "", "", "", ""]
-array_of_deathrattles_tokens_locanda1 = [[], [], [], [], []]
-personaggi_tokens_locanda1 = []
-for i in range(len(array_nomi_tokens_locanda1)):
-    personaggio = Personaggio(array_nomi_tokens_locanda1[i], array_tipi_tokens_locanda1[i],
-                              array_stats_tokens_locanda1[i][0], array_stats_tokens_locanda1[i][1],
-                              array_of_abilities_tokens_locanda1[i], array_of_deathrattles_tokens_locanda1[i])
-    personaggi_tokens_locanda1.append(personaggio)
+    array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere",
+                           "Cinghiale di Strada", "Comandante Nathrezim", "Condottiero Murloc", "Elementale della Festa",
+                           "Ghoul Instabile", "Golem Mietitore", "Grande Capo Scagliafine", "Guardiano dei Glifi",
+                           "Maxi-Robobomba", "Profeta dei Cinghiali", "Prole di N'zoth", "Rana Salterina",
+                           "Ratto delle Fogne", "Roccia Fusa", "Saurolisco Rabbioso", "Scommettitrice Incallita",
+                           "Tazza del Serraglio", "Trafficante di Draghetti", "Vecchio Occhiobuio", "Yo-Ho-Ogre",
+                           "Zannatosta", "Macao"]
+    array_tipi_locanda2 = ["Robot", "Pirata", None, "Demone", "Verrospino", "Demone", "Murloc", "Elementale", None, "Robot",
+                           "Murloc", "Drago", "Robot", None, None, "Bestia", "Bestia", "Elementale", "Bestia", "Pirata",
+                           None, None, "Murloc", "Pirata", "Verrospino", "Bestia"]
+    array_stats_locanda2 = [(3, 3), (3, 3), (2, 1), (3, 3), (2, 4), (2, 4), (3, 3), (3, 2), (1, 3), (2, 3), (3, 2), (2, 4),
+                            (2, 2), (3, 3), (2, 2), (3, 3), (3, 2), (2, 4), (3, 2), (3, 3), (2, 2), (2, 5), (2, 4), (3, 5),
+                            (5, 3), (4, 4)]
+    array_of_abilities_locanda2 = ["", "", "", "pv", "", "", "", "", "pv", "", "", "", "", "", "", "",
+                                   "", "pv", "", "", "", "", "", "pv", "", ""]
+    array_of_deathrattles_locanda2 = [[], [], ['gsd'], ['s1d'], [], [], [], [], ['da'], ['sg'], [], [], ['dr'], [], ['ba'], ['br'], ['st'],
+                                      [], [], [], [], [], [], [], [], []]
+    personaggi_locanda2 = []
+    for i in range(len(array_nomi_locanda2)):
+        personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0],
+                                  array_stats_locanda2[i][1], array_of_abilities_locanda2[i], array_of_deathrattles_locanda2[i])
+        personaggi_locanda2.append(personaggio)
+    array_nomi = array_nomi_tokens_locanda1 + array_nomi_tokens_locanda2 + array_nomi_locanda1 + array_nomi_locanda2
+    array_tipi = array_tipi_tokens_locanda1 + array_tipi_tokens_locanda2 + array_tipi_locanda1 + array_tipi_locanda2
+    array_stats = array_stats_tokens_locanda1 + array_stats_tokens_locanda2 + array_stats_locanda1 + array_stats_locanda2
+    array_of_abilities = array_of_abilities_tokens_locanda1 + array_of_abilities_tokens_locanda2 + array_of_abilities_locanda1 + array_of_abilities_locanda2
+    array_of_deathrattles = array_of_deathrattles_tokens_locanda1 + array_of_deathrattles_tokens_locanda2 + array_of_deathrattles_locanda1 + array_of_deathrattles_locanda2
+    personaggi = personaggi_tokens_locanda1 + personaggi_tokens_locanda2 + personaggi_locanda1 + personaggi_locanda2
 
-array_nomi_tokens_locanda2 = ["Golem Danneggiato", "Tartaruga"]
-array_tipi_tokens_locanda2 = ["Robot", "Bestia"]
-array_stats_tokens_locanda2 = [(2, 1), (2, 3)]
-array_of_abilities_tokens_locanda2 = ["", "pv"]
-array_of_deathrattles_tokens_locanda2 = [[], []]
-personaggi_tokens_locanda2 = []
-for i in range(len(array_nomi_tokens_locanda2)):
-    personaggio = Personaggio(array_nomi_tokens_locanda2[i], array_tipi_tokens_locanda2[i],
-                              array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1],
-                              array_of_abilities_tokens_locanda2[i], array_of_deathrattles_tokens_locanda2[i])
-    personaggi_tokens_locanda2.append(personaggio)
-
-array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
-                       "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio", "Geomante Lamaspina",
-                       "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo",
-                       "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira",
-                       "Vendimentale", "Verrospino Abbronzato"]
-array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia",
-                       "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
-array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
-                        (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
-array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
-array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['sd1'], ['gh'], [], [], [], [], [], [], []]
-personaggi_locanda1 = []
-for i in range(len(array_nomi_locanda1)):
-    personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0],
-                              array_stats_locanda1[i][1], array_of_abilities_locanda1[i],
-                              array_of_deathrattles_locanda1[i])
-    personaggi_locanda1.append(personaggio)
-
-array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere",
-                       "Cinghiale di Strada", "Comandante Nathrezim", "Condottiero Murloc", "Elementale della Festa",
-                       "Ghoul Instabile", "Golem Mietitore", "Grande Capo Scagliafine", "Guardiano dei Glifi",
-                       "Maxi-Robobomba", "Profeta dei Cinghiali", "Prole di N'zoth", "Rana Salterina",
-                       "Ratto delle Fogne", "Roccia Fusa", "Saurolisco Rabbioso", "Scommettitrice Incallita",
-                       "Tazza del Serraglio", "Trafficante di Draghetti", "Vecchio Occhiobuio", "Yo-Ho-Ogre",
-                       "Zannatosta"]
-array_tipi_locanda2 = ["Robot", "Pirata", None, "Demone", "Verrospino", "Demone", "Murloc", "Elementale", None, "Robot",
-                       "Murloc", "Drago", "Robot", None, None, "Bestia", "Bestia", "Elementale", "Bestia", "Pirata",
-                       None, None, "Murloc", "Pirata", "Verrospino"]
-array_stats_locanda2 = [(3, 3), (3, 3), (2, 1), (3, 3), (2, 4), (2, 4), (3, 3), (3, 2), (1, 3), (2, 3), (3, 2), (2, 4),
-                        (2, 2), (3, 3), (2, 2), (3, 3), (3, 2), (2, 4), (3, 2), (3, 3), (2, 2), (2, 5), (2, 4), (3, 5),
-                        (5, 3)]
-array_of_abilities_locanda2 = ["", "", "", "pv", "", "", "", "", "pv", "", "", "", "", "", "", "",
-                               "", "pv", "", "", "", "", "", "pv", ""]
-array_of_deathrattles_locanda2 = [[], [], ['gsd'], ['sd2'], [], [], [], [], ['da'], ['sg'], [], [], ['dr'], [], ['ba'], ['br'], ['st'],
-                                  [], [], [], [], [], [], [], []]
-personaggi_locanda2 = []
-for i in range(len(array_nomi_locanda2)):
-    personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0],
-                              array_stats_locanda2[i][1], array_of_abilities_locanda2[i], array_of_deathrattles_locanda2[i])
-    personaggi_locanda2.append(personaggio)
-array_nomi = array_nomi_tokens_locanda1 + array_nomi_tokens_locanda2 + array_nomi_locanda1 + array_nomi_locanda2
-array_tipi = array_tipi_tokens_locanda1 + array_tipi_tokens_locanda2 + array_tipi_locanda1 + array_tipi_locanda2
-array_stats = array_stats_tokens_locanda1 + array_stats_tokens_locanda2 + array_stats_locanda1 + array_stats_locanda2
-array_of_abilities = array_of_abilities_tokens_locanda1 + array_of_abilities_tokens_locanda2 + array_of_abilities_locanda1 + array_of_abilities_locanda2
-array_of_deathrattles = array_of_deathrattles_tokens_locanda1 + array_of_deathrattles_tokens_locanda2 + array_of_deathrattles_locanda1 + array_of_deathrattles_locanda2
-personaggi = personaggi_tokens_locanda1 + personaggi_tokens_locanda2 + personaggi_locanda1 + personaggi_locanda2
 taunt = None
 nuovo_indice = None
 personaggio_momentaneo_f = None
@@ -439,8 +513,15 @@ def P_vs_E():
         print('\n' + array_personaggi_amici[i].nome + ' ' + str(array_personaggi_amici[i].attacco) + ' ' + str(
             array_personaggi_amici[i].salute) + ' ' + str(array_personaggi_amici[i].max_salute) + ' ' + str(array_personaggi_amici[i].abilities) + " (" + str(
             i) +  ")" + " ha lottato con " + elemento_casuale.nome + ' ' + str(elemento_casuale.attacco) + ' ' + str(
-            elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + " (" + str(numero_r) + ")" + '\n')
+            elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + ' ' + str(elemento_casuale.abilities) + " (" + str(numero_r) + ")" + '\n')
+        for elemento in array_personaggi_amici:
+            print(elemento.nome + ' , posizione ' + str(array_personaggi_amici.index(elemento)) + ' ' + str(elemento.rantoli_di_morte))
+        print("Vediamo ora i nemici")
+        for elemento in array_personaggi_nemici:
+            print(elemento.nome + ' , posizione ' + str(array_personaggi_nemici.index(elemento)) + ' ' + str(elemento.rantoli_di_morte))
         array_personaggi_amici[i].attacca(elemento_casuale)
+        if array_personaggi_amici[i].nome == "Macao":
+            array_personaggi_amici[i].Triggera_rantolo_di_morte(array_personaggi_amici, "f")
         # se il mio servitore attaccando muore, l'ordine di attacco rimane invariato (+1 ma muore, quindi -1 ergo +0), vai comunque nella funzione morte
         if array_personaggi_amici[i].salute <= 0:
             repeat = False
@@ -489,8 +570,15 @@ def E_vs_P():
         print('\n' + array_personaggi_nemici[r].nome + ' ' + str(array_personaggi_nemici[r].attacco) + ' ' + str(
             array_personaggi_nemici[r].salute) + ' ' + str(array_personaggi_nemici[r].max_salute) + ' ' + str(array_personaggi_nemici[r].abilities) + " (" + str(
             r) + ')' + " ha lottato con " + elemento_casuale.nome + ' ' + str(elemento_casuale.attacco) + ' ' + str(
-            elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + ' (' + str(numero_r) + ')' + '\n')
+            elemento_casuale.salute) + ' ' + str(elemento_casuale.max_salute) + ' ' + str(elemento_casuale.abilities) +  ' (' + str(numero_r) + ')' + '\n')
+        for elemento in array_personaggi_amici:
+            print(elemento.nome + ' , posizione ' + str(array_personaggi_amici.index(elemento)) + ' ' + str(elemento.rantoli_di_morte))
+        print("Vediamo ora i nemici")
+        for elemento in array_personaggi_nemici:
+            print(elemento.nome + ' , posizione ' + str(array_personaggi_nemici.index(elemento)) + ' ' + str(elemento.rantoli_di_morte))
         array_personaggi_nemici[r].attacca(elemento_casuale)
+        if array_personaggi_nemici[r].nome == "Macao":
+            array_personaggi_nemici[r].Triggera_rantolo_di_morte(array_personaggi_nemici, "e")
         if array_personaggi_nemici[r].salute <= 0:
             repeat = False
             array_personaggi_nemici[r].morte("e")
@@ -523,8 +611,8 @@ abilities_array = Variables.array_of_abilities_p
 deathrattles_array = Variables.array_of_deathrattles_p
 for j in range(numero):
     i, r = 0, 0
+    Fulfill_Array_Start()
     Fulfill_Arrays()
-    print(len(array_personaggi_amici))
     inizio_combattimento()
     if len(array_personaggi_nemici) > len(array_personaggi_amici):
         first_player = 1
