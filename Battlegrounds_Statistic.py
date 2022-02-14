@@ -5,7 +5,7 @@ import Variables
 
 class Personaggio:
     # definisci il personaggio
-    def __init__(self, nome, tipo, attacco, salute, abilities= "", rantoli_di_morte = []):
+    def __init__(self, nome, tipo, attacco, salute, abilities, rantoli_di_morte):
         self.nome = nome
         self.tipo = tipo
         self.salute = salute
@@ -329,24 +329,19 @@ def Fulfill_Array_Start():
                                   array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1],
                                   array_of_abilities_tokens_locanda2[i], array_of_deathrattles_tokens_locanda2[i])
         personaggi_tokens_locanda2.append(personaggio)
-
-    array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
-                           "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio", "Geomante Lamaspina",
-                           "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo",
-                           "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira",
-                           "Vendimentale", "Verrospino Abbronzato"]
-    array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia",
-                           "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
-    array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
-                            (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
-    array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
-    array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['s2d'], ['gh'], [], [], [], [], [], [], []]
-    personaggi_locanda1 = []
-    for i in range(len(array_nomi_locanda1)):
-        personaggio = Personaggio(array_nomi_locanda1[i], array_tipi_locanda1[i], array_stats_locanda1[i][0],
-                                  array_stats_locanda1[i][1], array_of_abilities_locanda1[i],
-                                  array_of_deathrattles_locanda1[i])
-        personaggi_locanda1.append(personaggio)
+    def personaggimm():
+        array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
+                               "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio", "Geomante Lamaspina",
+                               "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo",
+                               "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira",
+                               "Vendimentale", "Verrospino Abbronzato"]
+        array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia",
+                               "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
+        array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
+                                (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
+        array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
+        array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['s2d'], ['gh'], [], [], [], [], [], [], []]
+        personaggi_locanda1 = [Personaggio(nomi, tipi, stats[0], stats[1], abilities, deathrattles) for nomi, tipi, stats, abilities, deathrattles in zip(array_nomi_locanda1, array_tipi_locanda1, array_stats_locanda1, array_of_abilities_locanda1, array_of_deathrattles_locanda1)]
 
     array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere",
                            "Cinghiale di Strada", "Comandante Nathrezim", "Condottiero Murloc", "Elementale della Festa",
@@ -611,6 +606,10 @@ abilities_array = Variables.array_of_abilities_p
 deathrattles_array = Variables.array_of_deathrattles_p
 for j in range(numero):
     i, r = 0, 0
+    nomi_array = Variables.array_nomi_p
+    stats_array = Variables.array_stats_p
+    abilities_array = Variables.array_of_abilities_p
+    deathrattles_array = Variables.array_of_deathrattles_p
     Fulfill_Array_Start()
     Fulfill_Arrays()
     inizio_combattimento()
