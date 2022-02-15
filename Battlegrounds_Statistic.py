@@ -55,11 +55,14 @@ class Personaggio:
         self.attacco = nuovo.attacco
         self.max_salute = nuovo.salute
         self.salute = 1
-        # la copia non puà avere ancora rinascita
+        # la copia non può avere ancora rinascita
         if "rn" in self.abilities:
             self.abilities = self.abilities.replace('rn', '')
-        # da verificare dove vada appeso
-        arr[nuovo_indice: nuovo_indice + 1] = [self]
+        # solo se sono stati evocati nuovi servitori dal minion stesso, la sua copia viene appesa alla destra di questi (prima di altri eventuali servitori)
+        if nuovo_indice != None:
+            indice = arr.index(self)
+            arr.insert(nuovo_indice, arr.pop(indice))
+        #se nuovo indice è None vuol dire che non sono stati evocati nuovi servitori e quindi non va appeso da alcuna parte, viene semplicemente sostituito con la copia.
         # se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
         if "pv" in self.abilities:
             arr2.append(self)
@@ -148,7 +151,10 @@ class Personaggio:
             arr2 = e_array_of_taunts
             count = conto_e
         # calcola quanto spazio c'è nell'array degli amici o nemici che sia escludendo il servitore che sta per morire (per questo il -1)
-        lu = len(arr) - 1
+        if self.salute <= 0:
+            lu = len(arr) - 1
+        else:
+            lu = len(arr)
         # individua la posizione della carta in questione nell'array degli amici o nemici che sia
         indices = arr.index(self)
         # si può leggere come "se c'è uno spazio, allora...", perché se lu < 7 vuol dire che dopo che è morto il servitore ci sono al massimo 6 spazi occupati ergo almeno 1 è libero.
@@ -157,7 +163,7 @@ class Personaggio:
             if 7 - lu < num:
                 # setta gli spazi liberi pari al numero di servitori evocabili
                 num = 7 - lu
-                array = []
+                array = [self]
                 for i in range(num):
                     # sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
                     if len(array_of_deathrattles[indice]) > 1:
@@ -180,13 +186,13 @@ class Personaggio:
                         obj.attacco += count
                         obj.salute += count
                         obj.salute_f()'''
-                # prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array ma si sposta di posizione dopo i token
-                arr[indices:indices] = array
-                # se ne individua la nuova posizione per la funzione rinascita se necessario
-                nuovo_indice = arr.index(self)
+                # prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array grazie a self già presente e i token a destra
+                arr[indices:indices + 1] = array
+                # se ne individua la nuova posizione per la funzione rinascita se necessario, che qui corrisponde subito a destra dell'ultimo servitore creato.
+                nuovo_indice = arr.index(array[len(array) - 1])
             else:
                 # molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
-                array = []
+                array = [self]
                 for i in range(num):
                     if len(array_of_deathrattles[indice]) > 1:
                         raio = []
@@ -206,8 +212,8 @@ class Personaggio:
                         obj.attacco += count
                         obj.salute += count
                         obj.salute_f()'''
-                arr[indices:indices] = array
-                nuovo_indice = arr.index(self)
+                arr[indices:indices + 1] = array
+                nuovo_indice = arr.index(array[len(array) - 1])
 
     def all_minions_buff(self, arr):
         #dà a tutti i servitori diversi da self +1/+1 pertanto è anche richiamata la funzione salute_f che vuole ripristinare la max_health se necessario.
@@ -227,7 +233,7 @@ class Personaggio:
             elemento.attacco += 1
             elemento.salute += 1
             elemento.salute_f()
-            elemento.rantoli_di_morte += ['br']
+            elemento.rantoli_di_morte .append('br')
             #print(elemento.nome + ' ' + str(arr.index(elemento)), elemento.rantoli_di_morte)
 
     def health_random_buff(self, arr):
@@ -254,15 +260,16 @@ class Personaggio:
             elemento.abilities = elemento.abilities + "sd"
 
     def Triggera_rantolo_di_morte(self, arr, t):
-        raio = arr[:]
-        for element in raio:
-            if element == self or element.rantoli_di_morte == []:
-                raio.remove(element)
+        raio = []
+        for element in arr[:]:
+            if element != self and element.rantoli_di_morte != []:
+                raio.append(element)
         if len(raio) > 0:
             elemento = random.choice(raio)
             copia = elemento.rantoli_di_morte[:]
             for element in copia:
                 elemento.deathrattles(arr, element, t)
+            return elemento
 
     # solita variabile t che indica se il servitore che muore è amico o meno + variabile s che specifica le situazioni in cui il servitore a morire è quello attaccato, se s è None, è morto il servitore che ha attaccato, altrimenti quello che è stato attaccato
     def morte(self, t, s=None):
@@ -283,10 +290,8 @@ class Personaggio:
         # possibili rantoli di morte del servitore, da rivedere in futuro
         for element in self.rantoli_di_morte:
             self.deathrattles(arr, element, t)
-        if nuovo_indice == None:
-            nuovo_indice = arr.index(self)
-        # se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
-        if not (len(arr) >= 7) and "rn" in self.abilities:
+        # se dopo i rantoli di morte vi sono 7 servitori o meno (anche 7 dato che non si è ancora rimosso il servitore morto) e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
+        if len(arr) <= 7 and "rn" in self.abilities:
             self.reborn(t)
             self.aggiornamento_combattimento()
         else:
@@ -321,7 +326,7 @@ def Fulfill_Array_Start():
     array_nomi_tokens_locanda2 = ["Golem Danneggiato", "Tartaruga"]
     array_tipi_tokens_locanda2 = ["Robot", "Bestia"]
     array_stats_tokens_locanda2 = [(2, 1), (2, 3)]
-    array_of_abilities_tokens_locanda2 = ["", "pv"]
+    array_of_abilities_tokens_locanda2 = ["", "pvrn"]
     array_of_deathrattles_tokens_locanda2 = [[], []]
     personaggi_tokens_locanda2 = []
     for i in range(len(array_nomi_tokens_locanda2)):
@@ -329,19 +334,24 @@ def Fulfill_Array_Start():
                                   array_stats_tokens_locanda2[i][0], array_stats_tokens_locanda2[i][1],
                                   array_of_abilities_tokens_locanda2[i], array_of_deathrattles_tokens_locanda2[i])
         personaggi_tokens_locanda2.append(personaggio)
-    def personaggimm():
-        array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
-                               "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio", "Geomante Lamaspina",
-                               "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo",
-                               "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira",
-                               "Vendimentale", "Verrospino Abbronzato"]
-        array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia",
-                               "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
-        array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2), (2, 2),
-                                (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
-        array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
-        array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['s2d'], ['gh'], [], [], [], [], [], [], []]
-        personaggi_locanda1 = [Personaggio(nomi, tipi, stats[0], stats[1], abilities, deathrattles) for nomi, tipi, stats, abilities, deathrattles in zip(array_nomi_locanda1, array_tipi_locanda1, array_stats_locanda1, array_of_abilities_locanda1, array_of_deathrattles_locanda1)]
+    array_nomi_locanda1 = ["Accolito di C'thun", "Alacromatica Evolutiva", "Anomalia Ristoratrice",
+                           "Cacciatore Pozzaroccia", "Canaglia", "Draghetto Rosso", "Gatto Randagio",
+                           "Geomante Lamaspina",
+                           "Iena Rovistatrice", "Imp Rivoltante", "Ingannatore Impulsivo", "Mozzo del Mazzo",
+                           "Mummia in Miniatura", "Murloc Cacciamaree", "Robocucciolo", "Tessitore dell'Ira",
+                           "Vendimentale", "Verrospino Abbronzato"]
+    array_tipi_locanda1 = [None, "Drago", "Elementale", "Murloc", "Pirata", "Drago", "Bestia", "Verrospino", "Bestia",
+                           "Demone", "Demone", "Pirata", "Robot", "Murloc", "Robot", None, "Elementale", "Verrospino"]
+    array_stats_locanda1 = [(2, 2), (1, 3), (1, 4), (2, 3), (3, 1), (1, 2), (1, 1), (3, 1), (2, 2), (1, 1), (2, 2),
+                            (2, 2),
+                            (1, 2), (2, 1), (2, 1), (1, 3), (2, 2), (1, 2)]
+    array_of_abilities_locanda1 = ["pvrn", "", "", "", "", "", "", "", "", "", "", "", "rn", "", "sd", "", "", ""]
+    array_of_deathrattles_locanda1 = [[], [], [], [], ['sp'], [], [], [], [], ['s2d'], ['gh'], [], [], [], [], [], [],
+                                      []]
+    personaggi_locanda1 = [Personaggio(nomi, tipi, stats[0], stats[1], abilities, deathrattles) for
+                           nomi, tipi, stats, abilities, deathrattles in
+                           zip(array_nomi_locanda1, array_tipi_locanda1, array_stats_locanda1,
+                               array_of_abilities_locanda1, array_of_deathrattles_locanda1)]
 
     array_nomi_locanda2 = ["Belva Zannaferrea", "Bucaniere Acquanera", "Campionessa Altruista", "Carceriere",
                            "Cinghiale di Strada", "Comandante Nathrezim", "Condottiero Murloc", "Elementale della Festa",
@@ -516,7 +526,11 @@ def P_vs_E():
             print(elemento.nome + ' , posizione ' + str(array_personaggi_nemici.index(elemento)) + ' ' + str(elemento.rantoli_di_morte))
         array_personaggi_amici[i].attacca(elemento_casuale)
         if array_personaggi_amici[i].nome == "Macao":
-            array_personaggi_amici[i].Triggera_rantolo_di_morte(array_personaggi_amici, "f")
+            try:
+                triggerato = array_personaggi_amici[i].Triggera_rantolo_di_morte(array_personaggi_amici, "f")
+                print("sono qui, il triggerato è " + triggerato.nome + ' ' + str(array_personaggi_amici.index(triggerato)))
+            except:
+                print("Sono qui, ma non ho triggerato alcunché")
         # se il mio servitore attaccando muore, l'ordine di attacco rimane invariato (+1 ma muore, quindi -1 ergo +0), vai comunque nella funzione morte
         if array_personaggi_amici[i].salute <= 0:
             repeat = False

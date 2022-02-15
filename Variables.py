@@ -1,9 +1,9 @@
-array_nomi_p = (['Macao', 'Macao', 'Rana Salterina', 'Rana Salterina', 'Ratto delle Fogne', 'Ratto delle Fogne'], ['Canaglia', 'Elementale', 'Elementale', 'Elementale'])
-array_stats_p = ([(1, 4), (2, 3), (2, 1), (1, 1), (3, 2), (2, 1)], [(8, 50), (2, 2), (3, 2), (2, 3)])
-array_of_abilities_p = (['rn', 'rn', 'rn', 'rn', 'rn', 'rn'], ['', 'sd', '', 'vl'])
-array_of_deathrattles_p = ([[], [], [], [], [], [], []], [[], [], [], []])
+array_nomi_p = (['Macao', 'Macao', 'Macao', 'Macao', 'Ratto delle Fogne'], ['Canaglia', 'Elementale', 'Elementale', 'Elementale'])
+array_stats_p = ([(1, 4), (2, 3), (2, 5), (1, 1), (2, 2)], [(8, 50), (2, 2), (3, 2), (2, 3)])
+array_of_abilities_p = (['rnsfvsd', 'rnsfvsd', 'rnsfvsd', 'rnsfvsd', 'sd'], ['', 'sd', '', 'vl'])
+array_of_deathrattles_p = ([[], [], [], [], [], []], [[], [], [], []])
 array = []
-number = 1000
+number = 100
 
 #funzione utile solo a velocizzare il processo di scrittura dell'array con tutti i servitori sul campo a inizio battaglia, chiedendo il tutto all'esecutore del programma tramite diversi input.
 def ask_array(names):
