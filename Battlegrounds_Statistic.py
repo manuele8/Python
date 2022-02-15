@@ -55,11 +55,14 @@ class Personaggio:
         self.attacco = nuovo.attacco
         self.max_salute = nuovo.salute
         self.salute = 1
-        # la copia non puà avere ancora rinascita
+        # la copia non può avere ancora rinascita
         if "rn" in self.abilities:
             self.abilities = self.abilities.replace('rn', '')
-        # da verificare dove vada appeso
-        arr[nuovo_indice: nuovo_indice + 1] = [self]
+        # solo se sono stati evocati nuovi servitori dal minion stesso, la sua copia viene appesa alla destra di questi (prima di altri eventuali servitori)
+        if nuovo_indice != None:
+            indice = arr.index(self)
+            arr.insert(nuovo_indice, arr.pop(indice))
+        #se nuovo indice è None vuol dire che non sono stati evocati nuovi servitori e quindi non va appeso da alcuna parte, viene semplicemente sostituito con la copia.
         # se provocazione, viene aggiunto nella lista dei servitori amici o nemici che sia sul campo aventi provocazione
         if "pv" in self.abilities:
             arr2.append(self)
@@ -157,7 +160,7 @@ class Personaggio:
             if 7 - lu < num:
                 # setta gli spazi liberi pari al numero di servitori evocabili
                 num = 7 - lu
-                array = []
+                array = [self]
                 for i in range(num):
                     # sulla base dell'indice visto prima, crea il token avente le stats e le abilità base del token stesso (ne crea un numero pari a num)
                     if len(array_of_deathrattles[indice]) > 1:
@@ -180,13 +183,13 @@ class Personaggio:
                         obj.attacco += count
                         obj.salute += count
                         obj.salute_f()'''
-                # prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array ma si sposta di posizione dopo i token
-                arr[indices:indices] = array
-                # se ne individua la nuova posizione per la funzione rinascita se necessario
-                nuovo_indice = arr.index(self)
+                # prende l'array amici o nemici che sia e dove ci sarebbe la carta che sta per morire ci si mette l'array che contiene tutti i token, e la carta che sta per morire rimane nell'array grazie a self già presente e i token a destra
+                arr[indices:indices + 1] = array
+                # se ne individua la nuova posizione per la funzione rinascita se necessario, che qui corrisponde subito a destra dell'ultimo servitore creato.
+                nuovo_indice = arr.index(array[len(array) - 1])
             else:
                 # molto simile a prima solo che qui non c'è problema di spazi vuoti per cui num è il valore di servitori che la carta vorrebbe evocare senza limitazione alcuna
-                array = []
+                array = [self]
                 for i in range(num):
                     if len(array_of_deathrattles[indice]) > 1:
                         raio = []
@@ -206,8 +209,8 @@ class Personaggio:
                         obj.attacco += count
                         obj.salute += count
                         obj.salute_f()'''
-                arr[indices:indices] = array
-                nuovo_indice = arr.index(self)
+                arr[indices:indices + 1] = array
+                nuovo_indice = arr.index(array[len(array) - 1])
 
     def all_minions_buff(self, arr):
         #dà a tutti i servitori diversi da self +1/+1 pertanto è anche richiamata la funzione salute_f che vuole ripristinare la max_health se necessario.
@@ -227,7 +230,7 @@ class Personaggio:
             elemento.attacco += 1
             elemento.salute += 1
             elemento.salute_f()
-            elemento.rantoli_di_morte += ['br']
+            elemento.rantoli_di_morte .append('br')
             #print(elemento.nome + ' ' + str(arr.index(elemento)), elemento.rantoli_di_morte)
 
     def health_random_buff(self, arr):
@@ -283,10 +286,8 @@ class Personaggio:
         # possibili rantoli di morte del servitore, da rivedere in futuro
         for element in self.rantoli_di_morte:
             self.deathrattles(arr, element, t)
-        if nuovo_indice == None:
-            nuovo_indice = arr.index(self)
-        # se dopo i rantoli di morte vi sono meno di 7 servitori e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
-        if not (len(arr) >= 7) and "rn" in self.abilities:
+        # se dopo i rantoli di morte vi sono 7 servitori o meno (anche 7 dato che non si è ancora rimosso il servitore morto) e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
+        if len(arr) <= 7 and "rn" in self.abilities:
             self.reborn(t)
             self.aggiornamento_combattimento()
         else:
