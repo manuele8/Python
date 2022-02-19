@@ -84,6 +84,11 @@ def get_tweets_from_user(twitter_user_name, page_limit=16, count_tweet=200):
 
     return df
 
-googleAI = get_tweets_from_user("GoogleAI")
+googleAI = get_tweets_from_user("jessicahodlr")
 print("Data Shape: {}".format(googleAI.shape))
-print(googleAI.head(10))
+lista = []
+for j in range(100):
+    lista = []
+    for key in googleAI.keys():
+        lista.append(googleAI[key].iloc[j])
+    print(lista)
