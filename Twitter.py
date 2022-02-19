@@ -12,7 +12,10 @@ cons_key = 'Ff23P2N0WBTzooJj8c0WGd3EA'
 cons_secret = 'Pxp1PFy5egg7dUkyqPQjmhINX6mq6WYNjUGNSYMVcBWjcYhOH2'
 acc_token = '1492059996183568384-xirWGMXDaJgCVgkC5X0UfIcSJLiufi'
 acc_secret = 'ImgxsVOoDSt9ZtLOMWxVtaLD34lZAWcvHQfpanB0MgCJr'
-nome = ''
+
+number = 100 #quanti tweet vuoi che ti vengano stampati a video
+nome = 'Fedez'
+nome_parola = 'Ferragni' #inserire la prima lettera sempre in maiuscolo
 
 
 # (1). Athentication Function
@@ -89,16 +92,21 @@ googleAI = get_tweets_from_user(nome)
 print("Data Shape: {}".format(googleAI.shape))
 lista = []
 biglista = []
-for j in range(100):
+for j in range(number):
     lista = []
     for key in googleAI.keys():
         lista.append(googleAI[key].iloc[j])
     biglista.append(lista[3])
     print(lista)
-nome_parola = 'Inter' #inserire la prima lettera sempre in maiuscolo
+lista2 = []
 conto = 0
 for element in biglista:
     if nome_parola.lower() in element or nome_parola in element:
         conto += 1
+        lista2.append(element)
 print(conto)
+if conto > 0:
+    risposta = input('Sei interessato a vedere in quali tweet compare la parola da te indicata? ')
+    if 's' in risposta:
+        print(lista2)
 
