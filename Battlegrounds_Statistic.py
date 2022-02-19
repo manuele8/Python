@@ -5,7 +5,7 @@ import Variables
 
 class Personaggio:
     # definisci il personaggio
-    def __init__(self, nome, tipo, attacco, salute, abilities, rantoli_di_morte):
+    def __init__(self, nome, tipo, attacco, salute, abilities, rantoli_di_morte, gold=False):
         self.nome = nome
         self.tipo = tipo
         self.salute = salute
@@ -13,6 +13,7 @@ class Personaggio:
         self.attacco = attacco
         self.abilities = abilities
         self.rantoli_di_morte = rantoli_di_morte
+        self.gold = gold
 
     # funzione attacco tra due, self e obj
     def attacca(self, obj):
@@ -50,7 +51,7 @@ class Personaggio:
         # ricerca tra tutti i personaggi nell'elenco, quello avente lo stesso nome del servitore morto e ne crea una copia con uno di salute
         indice = array_nomi.index(self.nome)
         nuovo = personaggi[indice]
-        self.rantoli_di_morte = nuovo.rantoli_di_morte
+        self.rantoli_di_morte = nuovo.rantoli_di_morte[:]
         self.abilities = nuovo.abilities
         self.attacco = nuovo.attacco
         self.max_salute = nuovo.salute
@@ -121,7 +122,7 @@ class Personaggio:
             self.summon(t, 1, "Pirata")
         if element == "gh":
             self.health_random_buff(arr)
-            print("buffato")
+            #print("buffato")
         if element == "s2d":
             self.summon(t, 2, "Imp")
         if element == "s1d":
@@ -224,16 +225,16 @@ class Personaggio:
                 element.salute_f()
 
     def random_buff(self, arr):
-        raio = arr[:]
-        for element in raio:
-            if element.tipo != "Bestia" or element.salute <= 0:
-                raio.remove(element)
+        raio = []
+        for element in arr[:]:
+            if element.tipo == "Bestia" and element.salute > 0:
+                raio.append(element)
         if len(raio) > 0:
             elemento = random.choice(raio)
             elemento.attacco += 1
             elemento.salute += 1
             elemento.salute_f()
-            elemento.rantoli_di_morte .append('br')
+            elemento.rantoli_di_morte.append('br')
             #print(elemento.nome + ' ' + str(arr.index(elemento)), elemento.rantoli_di_morte)
 
     def health_random_buff(self, arr):
@@ -267,8 +268,14 @@ class Personaggio:
         if len(raio) > 0:
             elemento = random.choice(raio)
             copia = elemento.rantoli_di_morte[:]
-            for element in copia:
-                elemento.deathrattles(arr, element, t)
+            number = 1
+            for element in arr:
+                if element.nome == "Barone":
+                    number = 2
+                    break
+            for j in range(number):
+                for element in copia:
+                    elemento.deathrattles(arr, element, t)
             return elemento
 
     # solita variabile t che indica se il servitore che muore è amico o meno + variabile s che specifica le situazioni in cui il servitore a morire è quello attaccato, se s è None, è morto il servitore che ha attaccato, altrimenti quello che è stato attaccato
@@ -288,8 +295,14 @@ class Personaggio:
             if "pv" in self.abilities:
                 e_array_of_taunts.remove(self)
         # possibili rantoli di morte del servitore, da rivedere in futuro
-        for element in self.rantoli_di_morte:
-            self.deathrattles(arr, element, t)
+        number = 1
+        for element in arr:
+            if element.nome == "Barone":
+                number = 2
+                break
+        for j in range(number):
+            for element in self.rantoli_di_morte:
+                self.deathrattles(arr, element, t)
         # se dopo i rantoli di morte vi sono 7 servitori o meno (anche 7 dato che non si è ancora rimosso il servitore morto) e il servitore morto ha rinascita, funzione rinascita, nota che nella funzione rinascita c'è già la rimozione del servitore morto per cui se non viene richiamata tale funziona, va eliminato manualmente il servitore
         if len(arr) <= 7 and "rn" in self.abilities:
             self.reborn(t)
@@ -359,17 +372,17 @@ def Fulfill_Array_Start():
                            "Maxi-Robobomba", "Profeta dei Cinghiali", "Prole di N'zoth", "Rana Salterina",
                            "Ratto delle Fogne", "Roccia Fusa", "Saurolisco Rabbioso", "Scommettitrice Incallita",
                            "Tazza del Serraglio", "Trafficante di Draghetti", "Vecchio Occhiobuio", "Yo-Ho-Ogre",
-                           "Zannatosta", "Macao"]
+                           "Zannatosta", "Macao", "Barone"]
     array_tipi_locanda2 = ["Robot", "Pirata", None, "Demone", "Verrospino", "Demone", "Murloc", "Elementale", None, "Robot",
                            "Murloc", "Drago", "Robot", None, None, "Bestia", "Bestia", "Elementale", "Bestia", "Pirata",
-                           None, None, "Murloc", "Pirata", "Verrospino", "Bestia"]
+                           None, None, "Murloc", "Pirata", "Verrospino", "Bestia", None]
     array_stats_locanda2 = [(3, 3), (3, 3), (2, 1), (3, 3), (2, 4), (2, 4), (3, 3), (3, 2), (1, 3), (2, 3), (3, 2), (2, 4),
                             (2, 2), (3, 3), (2, 2), (3, 3), (3, 2), (2, 4), (3, 2), (3, 3), (2, 2), (2, 5), (2, 4), (3, 5),
-                            (5, 3), (4, 4)]
+                            (5, 3), (4, 4), (1, 7)]
     array_of_abilities_locanda2 = ["", "", "", "pv", "", "", "", "", "pv", "", "", "", "", "", "", "",
-                                   "", "pv", "", "", "", "", "", "pv", "", ""]
+                                   "", "pv", "", "", "", "", "", "pv", "", "", ""]
     array_of_deathrattles_locanda2 = [[], [], ['gsd'], ['s1d'], [], [], [], [], ['da'], ['sg'], [], [], ['dr'], [], ['ba'], ['br'], ['st'],
-                                      [], [], [], [], [], [], [], [], []]
+                                      [], [], [], [], [], [], [], [], [], []]
     personaggi_locanda2 = []
     for i in range(len(array_nomi_locanda2)):
         personaggio = Personaggio(array_nomi_locanda2[i], array_tipi_locanda2[i], array_stats_locanda2[i][0],
@@ -527,10 +540,12 @@ def P_vs_E():
         array_personaggi_amici[i].attacca(elemento_casuale)
         if array_personaggi_amici[i].nome == "Macao":
             try:
-                triggerato = array_personaggi_amici[i].Triggera_rantolo_di_morte(array_personaggi_amici, "f")
-                print("sono qui, il triggerato è " + triggerato.nome + ' ' + str(array_personaggi_amici.index(triggerato)))
+                for k in range(1):
+                    triggerato = array_personaggi_amici[i].Triggera_rantolo_di_morte(array_personaggi_amici, "f")
+                    #print("sono qui, il triggerato è " + triggerato.nome + ' ' + str(array_personaggi_amici.index(triggerato)))
             except:
-                print("Sono qui, ma non ho triggerato alcunché")
+                pass
+                #print("Sono qui, ma non ho triggerato alcunché")
         # se il mio servitore attaccando muore, l'ordine di attacco rimane invariato (+1 ma muore, quindi -1 ergo +0), vai comunque nella funzione morte
         if array_personaggi_amici[i].salute <= 0:
             repeat = False
@@ -539,7 +554,7 @@ def P_vs_E():
                 i = 0
         # se non muore dovresti aggiungere 1 all'ordine di attacco, ma aspetta che attacchi l'avversario per cui intanto rendi la variabile add_1 vera
         else:
-            if not "fv" in array_personaggi_amici[i].abilities:
+            if "fv" not in array_personaggi_amici[i].abilities or ("fv" in array_personaggi_amici[i].abilities and n == 3):
                 personaggio_momentaneo_f = array_personaggi_amici[i]
                 i += 1
                 if i >= len(array_personaggi_amici):
@@ -594,7 +609,7 @@ def E_vs_P():
             if r >= len(array_personaggi_nemici):
                 r = 0
         else:
-            if not "fv" in array_personaggi_nemici[r].abilities:
+            if "fv" not in array_personaggi_nemici[r].abilities or ("fv" in array_personaggi_nemici[r].abilities and n == 3):
                 personaggio_momentaneo_e = array_personaggi_nemici[r]
                 r += 1
                 if r >= len(array_personaggi_nemici):
@@ -634,7 +649,7 @@ for j in range(numero):
     else:
         first_player = random.randrange(0, 2)
     count = 0
-    print("Inizio Partita")
+    #print("Inizio Partita")
     # print(first_player, "lol")
     while len(array_personaggi_nemici) > 0 and len(array_personaggi_amici) > 0:
         '''for element in array_personaggi_amici:
@@ -670,6 +685,10 @@ win_prob = float((count_win / numero) * 100)
 tie_prob = float((count_tie / numero) * 100)
 lose_prob = float((count_lose / numero) * 100)
 
+for element in array_personaggi_amici:
+    print(element.nome, element.attacco, element.salute)
+for element in array_personaggi_nemici:
+    print(element.nome, element.attacco, element.salute)
 print(win_prob, tie_prob, lose_prob)
 print('array_nomi_p = ' + str(nomi_array))
 print('array_stats_p = ' + str(stats_array))
