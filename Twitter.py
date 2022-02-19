@@ -12,6 +12,7 @@ cons_key = 'Ff23P2N0WBTzooJj8c0WGd3EA'
 cons_secret = 'Pxp1PFy5egg7dUkyqPQjmhINX6mq6WYNjUGNSYMVcBWjcYhOH2'
 acc_token = '1492059996183568384-xirWGMXDaJgCVgkC5X0UfIcSJLiufi'
 acc_secret = 'ImgxsVOoDSt9ZtLOMWxVtaLD34lZAWcvHQfpanB0MgCJr'
+nome = ''
 
 
 # (1). Athentication Function
@@ -84,7 +85,7 @@ def get_tweets_from_user(twitter_user_name, page_limit=16, count_tweet=200):
 
     return df
 
-googleAI = get_tweets_from_user("FBiasin")
+googleAI = get_tweets_from_user(nome)
 print("Data Shape: {}".format(googleAI.shape))
 lista = []
 biglista = []
@@ -94,7 +95,6 @@ for j in range(100):
         lista.append(googleAI[key].iloc[j])
     biglista.append(lista[3])
     print(lista)
-print(biglista)
 nome_parola = 'Inter' #inserire la prima lettera sempre in maiuscolo
 conto = 0
 for element in biglista:
