@@ -87,8 +87,18 @@ def get_tweets_from_user(twitter_user_name, page_limit=16, count_tweet=200):
 googleAI = get_tweets_from_user("jessicahodlr")
 print("Data Shape: {}".format(googleAI.shape))
 lista = []
+biglista = []
 for j in range(100):
     lista = []
     for key in googleAI.keys():
-        lista.append(googleAI[key].iloc[j])
+        if key == "text":
+            lista.append(googleAI[key].iloc[j])
+    biglista.append(lista)
     print(lista)
+print(biglista)
+nome_parola = 'I'
+conto = 0
+for element in biglista:
+    if nome_parola in element[0]:
+        conto += 1
+print(conto)
