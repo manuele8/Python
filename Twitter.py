@@ -84,21 +84,21 @@ def get_tweets_from_user(twitter_user_name, page_limit=16, count_tweet=200):
 
     return df
 
-googleAI = get_tweets_from_user("jessicahodlr")
+googleAI = get_tweets_from_user("FBiasin")
 print("Data Shape: {}".format(googleAI.shape))
 lista = []
 biglista = []
 for j in range(100):
     lista = []
     for key in googleAI.keys():
-        if key == "text":
-            lista.append(googleAI[key].iloc[j])
-    biglista.append(lista)
+        lista.append(googleAI[key].iloc[j])
+    biglista.append(lista[3])
     print(lista)
 print(biglista)
-nome_parola = 'I'
+nome_parola = 'Inter' #inserire la prima lettera sempre in maiuscolo
 conto = 0
 for element in biglista:
-    if nome_parola in element[0]:
+    if nome_parola.lower() in element or nome_parola in element:
         conto += 1
 print(conto)
+
