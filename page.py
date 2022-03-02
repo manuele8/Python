@@ -10,3 +10,8 @@ class MainPage(BasePage):
   def click_go_button(self):
     element = self.driver.find_element()
     element.click()
+    
+class SearchResultPage(BasePage):
+  
+  def is_results_found(self):
+    return "No results found." not in self.driver.page_source
